@@ -1,0 +1,247 @@
+.scem-event-details {
+    margin: 20px 0;
+}
+
+.scem-event-details h3 {
+    margin-top: 1.5em;
+    padding-top: 1em;
+    border-top: 1px solid #dcdcde;
+}
+
+.scem-event-details h3:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.scem-map {
+    height: 320px;
+    margin-bottom: 10px;
+    border: 1px solid #dcdcde;
+}
+
+#scem-date-times-table th,
+#scem-date-times-table td {
+    padding: 8px 10px;
+}
+
+#scem-venue-summary {
+    padding: 10px 12px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    max-width: 400px;
+}
+
+#scem-venue-summary p:first-child {
+    margin-top: 0;
+}
+
+#scem-venue-summary p:last-child {
+    margin-bottom: 0;
+}
+
+/* ---- Calendar ---- */
+
+#scem-calendar-root {
+    max-width: 1100px;
+    position: relative;
+    min-height: 200px;
+}
+
+#scem-calendar-root.scem-cal-loading {
+    opacity: 0.5;
+}
+
+.scem-cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 16px 0;
+}
+
+.scem-cal-header h2 {
+    margin: 0;
+    min-width: 200px;
+    text-align: center;
+}
+
+.scem-cal-grid {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.scem-cal-grid th {
+    padding: 8px;
+    text-align: center;
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+}
+
+.scem-cal-day {
+    vertical-align: top;
+    border: 1px solid #dcdcde;
+    padding: 6px;
+    height: 100px;
+    width: 14.28%;
+}
+
+.scem-cal-day--outside {
+    background: #f6f7f7;
+    color: #a7aaad;
+}
+
+.scem-cal-day--today .scem-cal-day-number {
+    display: inline-block;
+    background: #2271b1;
+    color: #fff;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+}
+
+.scem-cal-day-number {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.scem-cal-occurrence {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.4;
+    padding: 2px 5px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/*
+ * Status colour lives only on these modifiers (not the base classes
+ * above/below) so that combining a modifier with .scem-cal-occurrence
+ * or .scem-cal-modal-status never comes down to a stylesheet-order
+ * tiebreak between two equally-specific background rules.
+ */
+.scem-cal-occurrence--scheduled {
+    background: #2271b1;
+}
+
+.scem-cal-occurrence--postponed {
+    background: #dba617;
+}
+
+.scem-cal-occurrence--cancelled {
+    background: #8c8f94;
+    text-decoration: line-through;
+}
+
+.scem-cal-occurrence--sold_out {
+    background: #b32d2e;
+}
+
+.scem-cal-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100000;
+}
+
+.scem-cal-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 100001;
+}
+
+.scem-cal-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.scem-cal-modal-header h2 {
+    margin: 0;
+}
+
+.scem-cal-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #50575e;
+}
+
+.scem-cal-modal-body {
+    padding: 16px 20px;
+}
+
+.scem-cal-modal-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    color: #fff;
+}
+
+.scem-cal-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #dcdcde;
+}
+
+.scem-delete-dialog {
+    width: 100%;
+    max-width: 480px;
+    padding: 0;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.scem-delete-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.scem-delete-dialog form {
+    padding: 20px 24px;
+}
+
+.scem-delete-dialog h2 {
+    margin-top: 0;
+}
+
+.scem-delete-confirm-input {
+    margin-top: 6px;
+}
+
+.scem-docs-code {
+    max-width: 900px;
+    padding: 12px 16px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}

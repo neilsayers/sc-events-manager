@@ -1,0 +1,85 @@
+.scem-listing {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.scem-listing-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.scem-listing-item--cancelled {
+    opacity: 0.6;
+}
+
+.scem-listing-image img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+}
+
+.scem-listing-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.scem-listing-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+}
+
+.scem-listing-title a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.scem-listing-datetime,
+.scem-listing-venue,
+.scem-listing-price,
+.scem-listing-type,
+.scem-listing-excerpt {
+    margin: 0 0 4px;
+}
+
+.scem-listing-status {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-bottom: 4px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #fff;
+    background: #dba617;
+}
+
+.scem-listing-status--sold_out {
+    background: #b32d2e;
+}
+
+.scem-listing-status--cancelled {
+    background: #8c8f94;
+}
+
+.scem-listing-tickets-link {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 6px 14px;
+    background: #2271b1;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.scem-listing-tickets-link:hover {
+    background: #135e96;
+    color: #fff;
+}
+
+.scem-listing-empty {
+    font-style: italic;
+}
