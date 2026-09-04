@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,12 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.6.0 =
+* Event types now nest under a single new "Event Types" top-level admin menu instead of each type getting its own —
+  keeps the admin sidebar tidy as more types are added. Each type still gets exactly one link there (its own list);
+  "Add New" stays one click away, from inside a type's own list. Venues are unaffected — they already nested under
+  Events Manager's own settings menu.
 
 = 1.5.0 =
 * Added a stable data API for pulling events into other code: scem_get_events() (PHP) and a public, versioned REST

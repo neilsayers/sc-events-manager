@@ -4,6 +4,7 @@ namespace SCEventsManager;
 
 use SCEventsManager\Admin\CalendarPage;
 use SCEventsManager\Admin\DocumentationPage;
+use SCEventsManager\Admin\EventTypesMenu;
 use SCEventsManager\Admin\EventTypesPage;
 use SCEventsManager\Admin\ListingSettingsPage;
 use SCEventsManager\Admin\TaxonomiesPage;
@@ -48,6 +49,7 @@ final class Plugin
     {
         $features = [
             new EventTypesPage($this->settings),
+            new EventTypesMenu(),
             new TaxonomiesPage($this->settings),
             new CalendarPage($this->settings),
             new ListingSettingsPage($this->settings),

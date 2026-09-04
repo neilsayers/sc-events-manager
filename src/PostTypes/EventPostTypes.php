@@ -2,6 +2,7 @@
 
 namespace SCEventsManager\PostTypes;
 
+use SCEventsManager\Admin\EventTypesMenu;
 use SCEventsManager\Contracts\Hookable;
 use SCEventsManager\Settings\Settings;
 
@@ -39,6 +40,7 @@ final class EventPostTypes implements Hookable
                 'public' => true,
                 'has_archive' => true,
                 'show_in_rest' => false, // Classic editor, matching the site-wide editor choice.
+                'show_in_menu' => EventTypesMenu::PARENT_SLUG,
                 'menu_icon' => 'dashicons-calendar-alt',
                 'rewrite' => ['slug' => $eventType['slug']],
                 'supports' => ['title', 'editor', 'thumbnail', 'excerpt'],
