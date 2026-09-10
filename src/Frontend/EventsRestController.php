@@ -49,6 +49,13 @@ final class EventsRestController implements Hookable
                     'enum' => ['future', 'past', 'month', 'week'],
                     'description' => 'Which window of dates to search.',
                 ],
+                'month' => [
+                    'type' => 'string',
+                    'default' => '',
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'validate_callback' => static fn ($value): bool => $value === '' || \preg_match('/^\d{4}-\d{2}$/', (string) $value) === 1,
+                    'description' => 'range="month" only — target month as "YYYY-MM". Empty means the current calendar month.',
+                ],
                 'limit' => [
                     'type' => 'integer',
                     'default' => 10,
@@ -92,6 +99,7 @@ final class EventsRestController implements Hookable
         $atts = [
             'type' => (string) $request->get_param('type'),
             'range' => (string) $request->get_param('range'),
+            'month' => (string) $request->get_param('month'),
             'limit' => (string) $request->get_param('limit'),
             'venue' => (string) $request->get_param('venue'),
             'taxonomy' => (string) $request->get_param('taxonomy'),

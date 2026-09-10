@@ -339,7 +339,13 @@ final class EventDetailsMetaBox implements Hookable
         $this->saveVenue($postId, $data);
 
         $isOneDay = ! empty($data['is_one_day']);
-        MetaField::saveValue($postId, '_scem_is_one_day', $isOneDay ? '1' : '');
+        // '0', not '' — MetaField::saveValue() deletes on an empty
+        // string, and EventMeta::read()/EventOccurrences::readRaw()
+        // both treat a *missing* key as "one day" (the new-post
+        // default). Saving '' for an explicitly multi-day event would
+        // delete the row and silently flip it back to one-day on the
+        // next read.
+        MetaField::saveValue($postId, '_scem_is_one_day', $isOneDay ? '1' : '0');
         MetaField::saveValue($postId, '_scem_start_date', $this->sanitizeDate($data['start_date'] ?? ''));
         MetaField::saveValue($postId, '_scem_end_date', $isOneDay ? '' : $this->sanitizeDate($data['end_date'] ?? ''));
         MetaField::saveValue($postId, '_scem_start_time', $this->sanitizeTime($data['start_time_hour'] ?? '', $data['start_time_minute'] ?? ''));

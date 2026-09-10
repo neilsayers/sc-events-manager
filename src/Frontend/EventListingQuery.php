@@ -27,7 +27,7 @@ final class EventListingQuery
      */
     public function run(array $atts): array
     {
-        [$rangeStart, $rangeEnd, $descending] = $this->resolveRange((string) $atts['range']);
+        [$rangeStart, $rangeEnd, $descending] = $this->resolveRange((string) $atts['range'], (string) ($atts['month'] ?? ''));
 
         $postTypes = $atts['type'] !== ''
             ? \array_filter(\array_map('trim', \explode(',', (string) $atts['type'])))
@@ -107,15 +107,39 @@ final class EventListingQuery
     /**
      * @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable, 2: bool} [start, end, descending]
      */
-    private function resolveRange(string $range): array
+    private function resolveRange(string $range, string $month = ''): array
     {
         $today = new \DateTimeImmutable('today');
 
         return match ($range) {
             'past' => [$today->modify('-'.self::WINDOW_MONTHS.' months'), $today->modify('-1 day'), true],
-            'month' => [$today->modify('first day of this month'), $today->modify('last day of this month'), false],
+            // month defaults to the current calendar month, same as
+            // before — an explicit "YYYY-MM" (e.g. a "What's on" page
+            // paging to next/previous month) targets that month
+            // instead. Anything malformed falls back to this month
+            // rather than erroring, since a bad value here is a
+            // caller bug, not a reason to break the listing.
+            'month' => $this->resolveMonth($month, $today),
             'week' => [$today->modify('monday this week'), $today->modify('sunday this week'), false],
             default => [$today, $today->modify('+'.self::WINDOW_MONTHS.' months'), false], // 'future'
         };
+    }
+
+    /**
+     * @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable, 2: bool}
+     */
+    private function resolveMonth(string $month, \DateTimeImmutable $today): array
+    {
+        $anchor = $today;
+
+        if (\preg_match('/^(\d{4})-(\d{2})$/', $month, $matches)) {
+            try {
+                $anchor = new \DateTimeImmutable("{$matches[1]}-{$matches[2]}-01");
+            } catch (\Exception) {
+                $anchor = $today;
+            }
+        }
+
+        return [$anchor->modify('first day of this month'), $anchor->modify('last day of this month'), false];
     }
 }

@@ -34,6 +34,7 @@ final class DocumentationPage implements Hookable
     private const SHARED_ATTRIBUTES = [
         'type' => 'Comma-separated event type post_type keys, e.g. "gig,show". Empty (the default) means every configured type.',
         'range' => '"future" (default), "past", "month", or "week".',
+        'month' => 'range="month" only — a specific month as "YYYY-MM" (e.g. "2026-12"). Empty (the default) means the current calendar month.',
         'limit' => 'Maximum occurrences to return. Default 10; 0 means no limit.',
         'venue' => 'A Venue post ID to filter by. Default: none.',
         'taxonomy' => 'A custom taxonomy slug to filter by, paired with term. Default: none.',

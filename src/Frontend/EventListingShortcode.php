@@ -20,6 +20,7 @@ final class EventListingShortcode implements Hookable
     private const DEFAULT_ATTS = [
         'type' => '',
         'range' => 'future',
+        'month' => '', // range="month" only — "YYYY-MM"; empty means the current calendar month.
         'limit' => '10',
         'venue' => '',
         'taxonomy' => '',
