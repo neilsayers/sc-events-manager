@@ -26,6 +26,7 @@ final class Settings
         'event_types' => [],
         'taxonomies' => [],
         'listing_fields' => null, // null = not yet saved; resolved to ListingFields::DEFAULT_ENABLED on read.
+        'currency' => '£',
     ];
 
     private array $values;
@@ -286,6 +287,26 @@ final class Settings
      *
      * @return string[]
      */
+    /**
+     * Currency symbol prefixed to every formatted ticket price. A
+     * setting rather than a hardcoded "£" because this plugin is
+     * built to be dropped into any site.
+     */
+    public function currency(): string
+    {
+        $currency = (string) ($this->values['currency'] ?? '');
+
+        return $currency !== '' ? $currency : '£';
+    }
+
+    public function saveCurrency(string $currency): void
+    {
+        $currency = \trim(\sanitize_text_field($currency));
+        $this->values['currency'] = \mb_substr($currency, 0, 3) ?: '£';
+
+        \update_option(self::OPTION_KEY, $this->values);
+    }
+
     public function listingFields(): array
     {
         return $this->values['listing_fields'] ?? ListingFields::DEFAULT_ENABLED;

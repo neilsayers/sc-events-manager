@@ -55,6 +55,10 @@ final class EventMeta
             'responsible_adult_required' => (bool) \get_post_meta($postId, '_scem_responsible_adult_required', true),
             'dogs_allowed' => (bool) \get_post_meta($postId, '_scem_dogs_allowed', true),
             'ticket_url' => (string) \get_post_meta($postId, '_scem_ticket_url', true),
+            'ticket_prices' => TicketPrices::read($postId),
+            'ticket_notes' => TicketPrices::readNotes($postId),
+            // Derived from ticket_prices — see TicketPrices for why
+            // the legacy string is still kept in step.
             'price' => (string) \get_post_meta($postId, '_scem_price', true),
             'status' => (string) \get_post_meta($postId, '_scem_status', true) ?: 'scheduled',
             'organiser_name' => (string) \get_post_meta($postId, '_scem_organiser_name', true),

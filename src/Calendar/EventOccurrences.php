@@ -4,6 +4,7 @@ namespace SCEventsManager\Calendar;
 
 use SCEventsManager\MetaBoxes\StatusMetaBox;
 use SCEventsManager\Settings\Settings;
+use SCEventsManager\Support\TicketPrices;
 
 /**
  * Expands stored event postmeta into individual calendar occurrences
@@ -48,7 +49,11 @@ final class EventOccurrences
         'status' => 'The raw event status key (e.g. "scheduled", "cancelled") — see MetaBoxes\StatusMetaBox::CHOICES for the full set.',
         'status_label' => 'The human-readable label for status.',
         'venue_name' => 'The event\'s venue name, or "" if none is set.',
-        'price' => 'The price text exactly as entered (not necessarily numeric — e.g. "Free", "£12–£15").',
+        'price' => 'Short display price derived from price_rows — "" (unpriced), "Free", "£20", or "From £5". Safe to print in a fixed-width card.',
+        'price_rows' => 'array<int, array{type, type_label, label, age_from, age_under, free, amount, display}> — every ticket tier, in canonical order (Adult first). label is the display name with its age qualifier, e.g. "Child (under 5)"; display is the formatted price or "Free".',
+        'price_from' => 'float|null — the cheapest paid amount, for sorting and price filters. null when the event is free or unpriced.',
+        'price_note' => 'One short "... free" line to sit under price on a card (e.g. "Under 5s free"), or "" when there isn\'t one. Never more than one.',
+        'ticket_notes' => 'Free-text conditions attached to the prices (e.g. "... free if accompanied by an adult"), or "". Meant for the event\'s own page, not for cards.',
         'ticket_url' => 'The ticket/booking link, or "" if none was set.',
         'terms_by_taxonomy' => 'array<string, string[]> — term slugs the event is assigned to, keyed by taxonomy.',
         'edit_url' => 'The wp-admin edit-post link. PHP-only (scem_get_events()) — stripped from the public REST response.',
@@ -156,6 +161,10 @@ final class EventOccurrences
                     'status_label' => StatusMetaBox::CHOICES[$raw['status']] ?? \ucfirst($raw['status']),
                     'venue_name' => $this->resolveVenueName($raw),
                     'price' => $raw['price'],
+                    'price_rows' => $raw['price_rows'],
+                    'price_from' => $raw['price_from'],
+                    'price_note' => $raw['price_note'],
+                    'ticket_notes' => $raw['ticket_notes'],
                     'ticket_url' => $raw['ticket_url'],
                     'terms_by_taxonomy' => $termSlugsByTaxonomy,
                     'edit_url' => (string) \get_edit_post_link($post->ID, 'raw'),
@@ -449,6 +458,15 @@ final class EventOccurrences
         $isOneDayMeta = \get_post_meta($postId, '_scem_is_one_day', true);
         $rawDateTimes = \get_post_meta($postId, '_scem_date_times', true);
         $recurrenceDays = \get_post_meta($postId, '_scem_recurrence_days', true);
+        $currency = $this->settings->currency();
+        $priceRows = TicketPrices::read($postId);
+
+        // Prefer the stored string only when there are no rows to
+        // derive from — an event last saved before ticket rows
+        // existed, whose price was too wordy to migrate cleanly.
+        $summary = $priceRows === []
+            ? (string) \get_post_meta($postId, TicketPrices::LEGACY_META_KEY, true)
+            : TicketPrices::summary($priceRows, $currency);
 
         return [
             'is_one_day' => $isOneDayMeta === '' ? true : (bool) $isOneDayMeta,
@@ -465,7 +483,18 @@ final class EventOccurrences
             'status' => (string) \get_post_meta($postId, '_scem_status', true) ?: 'scheduled',
             'venue_id' => (int) \get_post_meta($postId, '_scem_venue_id', true),
             'venue_name' => (string) \get_post_meta($postId, '_scem_venue_name', true),
-            'price' => (string) \get_post_meta($postId, '_scem_price', true),
+            'price' => $summary,
+            'price_rows' => \array_map(
+                static fn (array $row): array => $row + [
+                    'type_label' => TicketPrices::TYPES[$row['type']],
+                    'label' => TicketPrices::rowLabel($row),
+                    'display' => TicketPrices::rowPrice($row, $currency),
+                ],
+                $priceRows
+            ),
+            'price_from' => TicketPrices::lowestAmount($priceRows),
+            'price_note' => TicketPrices::freeNote($priceRows),
+            'ticket_notes' => TicketPrices::readNotes($postId),
             'ticket_url' => (string) \get_post_meta($postId, '_scem_ticket_url', true),
         ];
     }

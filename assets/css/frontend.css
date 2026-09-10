@@ -83,3 +83,43 @@
 .scem-listing-empty {
     font-style: italic;
 }
+
+/* ---- Price note on a listing card ---- */
+
+.scem-listing-price-note {
+    margin-top: 2px;
+    font-size: 0.875em;
+    opacity: 0.75;
+}
+
+/* ---- Full price breakdown (scem_the_ticket_prices()) ---- */
+
+.scem-ticket-prices {
+    margin: 1.5em 0;
+}
+
+.scem-ticket-prices-table {
+    width: 100%;
+    max-width: 420px;
+    border-collapse: collapse;
+}
+
+.scem-ticket-prices-table th,
+.scem-ticket-prices-table td {
+    padding: 0.5em 0;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    font-weight: normal;
+}
+
+.scem-ticket-prices-table td {
+    text-align: right;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.scem-ticket-prices-notes {
+    margin-top: 0.75em;
+    font-size: 0.9em;
+    opacity: 0.8;
+}

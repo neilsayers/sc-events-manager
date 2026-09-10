@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.6.0
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,34 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.7.1 =
+* The "SC Events Manager" settings menu now reads "SC Events Manager" in the admin sidebar (not just the page title)
+  and has moved down near the bottom of the menu, alongside SC Room Bookings and SC Maps's own settings screens —
+  keeps the admin sidebar's top area for actual content (event types, posts, pages) rather than plugin settings. The
+  "Event Types" menu that lists event/venue post types is unaffected — it stays at the top with other content.
+
+= 1.7.0 =
+* Ticket prices are now structured rows rather than one free-text field: each row is a ticket type (Adult, Teen,
+  Child, Infant, Concession, Senior, Student, Carer, Family, Group, Member), an optional age qualifier, and either
+  an amount or "Free". A free-text string couldn't be sorted, filtered or shortened, so listing cards had to print it whole —
+  "£10 adults, £5 unaccompanied children, under 5 free" doesn't fit in a card.
+* Ages use the from/under pair Restrictions already uses, so "under 5", "ages 5-15" and "60+" are the same two
+  fields instead of an entry per boundary in the type list. The age tiers are names, not bands: a venue pricing
+  two child bands adds two Child rows with different age qualifiers. Age tiers run oldest-first (Adult, Teen,
+  Child, Infant) so the headline price leads and the table reads down to the free rows.
+* Added a "Ticket conditions" note for the wording no dropdown can hold (e.g. "... free if accompanied by an
+  adult"). Shown under the price table on the event's own page, never on a listing card.
+* scem_get_events()/REST occurrences gained price_rows, price_from, price_note and ticket_notes. price is now a
+  short derived string ("", "Free", "£20", "From £5") that's safe to print in a fixed-width card; anything already
+  reading it keeps working.
+* Added scem_get_ticket_prices() and scem_the_ticket_prices() for rendering the full breakdown on an event's page.
+* Added a currency symbol setting (Events Manager -> Listing Display) rather than assuming "£".
+* The Tickets box moved from the sidebar to below the editor — a price row is four controls wide and the sidebar
+  column can't lay that out.
+* Events saved before this release keep their price: a bare amount or "Free" migrates to a single Adult row, and
+  anything wordier surfaces in the conditions note rather than being guessed at. _scem_price is still written on
+  every save, holding the derived summary.
 
 = 1.6.0 =
 * Event types now nest under a single new "Event Types" top-level admin menu instead of each type getting its own —

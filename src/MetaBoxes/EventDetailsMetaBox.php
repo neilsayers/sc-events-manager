@@ -8,6 +8,7 @@ use SCEventsManager\Settings\Settings;
 use SCEventsManager\Support\EventMeta;
 use SCEventsManager\Support\LocationFields;
 use SCEventsManager\Support\MetaField;
+use SCEventsManager\Support\TicketPrices;
 
 /**
  * Hand-written "Event details" box rendered above the
@@ -368,7 +369,11 @@ final class EventDetailsMetaBox implements Hookable
         MetaField::saveValue($postId, '_scem_dogs_allowed', ! empty($data['dogs_allowed']) ? '1' : '');
 
         MetaField::saveValue($postId, '_scem_ticket_url', \esc_url_raw($data['ticket_url'] ?? ''));
-        MetaField::saveText($postId, '_scem_price', $data['price'] ?? '');
+        TicketPrices::save(
+            $postId,
+            \is_array($data['ticket_prices'] ?? null) ? $data['ticket_prices'] : [],
+            (string) ($data['ticket_notes'] ?? '')
+        );
 
         $status = \sanitize_key($data['status'] ?? 'scheduled');
         MetaField::saveValue($postId, '_scem_status', \in_array($status, ['scheduled', 'postponed', 'cancelled', 'sold_out'], true) ? $status : 'scheduled');

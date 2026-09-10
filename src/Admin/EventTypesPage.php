@@ -59,12 +59,12 @@ final class EventTypesPage implements Hookable
     {
         \add_menu_page(
             'SC Events Manager',
-            'Events Manager',
+            'SC Events Manager',
             'manage_options',
             self::PAGE_SLUG,
             [$this, 'renderPage'],
             'dashicons-calendar-alt',
-            26
+            90
         );
 
         /*

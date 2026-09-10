@@ -245,3 +245,58 @@
     font-size: 13px;
     line-height: 1.6;
 }
+
+/* ---- Tickets & Prices meta box ---- */
+
+.scem-tickets-field {
+    max-width: 640px;
+}
+
+.scem-price-table {
+    max-width: 720px;
+    margin-bottom: 8px;
+}
+
+.scem-price-table th,
+.scem-price-table td {
+    padding: 8px 10px;
+    vertical-align: middle;
+}
+
+.scem-price-table .scem-price-col-age,
+.scem-price-table .scem-price-col-amount {
+    width: 110px;
+}
+
+.scem-price-table .scem-price-col-free,
+.scem-price-table .scem-price-col-remove {
+    width: 60px;
+    text-align: center;
+}
+
+.scem-price-table input[type="number"] {
+    width: 100%;
+}
+
+.scem-price-table .scem-price-type {
+    width: 100%;
+    max-width: 200px;
+}
+
+.scem-price-remove {
+    color: #b32d2e;
+    font-size: 20px;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.scem-price-remove:hover {
+    color: #8a2424;
+}
+
+.scem-price-empty {
+    max-width: 640px;
+    color: #646970;
+    font-style: italic;
+}

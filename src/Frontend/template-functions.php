@@ -50,3 +50,72 @@ if (! function_exists('scem_get_events')) {
         return \SCEventsManager\Frontend\EventListingShortcode::query($atts);
     }
 }
+
+if (! function_exists('scem_get_ticket_prices')) {
+    /**
+     * An event's ticket price rows, ready to render: each row has a
+     * label ("Child (under 5)") and a display price ("Free", "£10"),
+     * in canonical order. Empty array when the event has no prices
+     * set, or when $postId isn't an event.
+     *
+     * @return array<int, array{type: string, type_label: string, label: string, age_from: string, age_under: string, free: bool, amount: string, display: string}>
+     */
+    function scem_get_ticket_prices(?int $postId = null): array
+    {
+        $postId = $postId ?: \get_the_ID();
+
+        if (! $postId || \SCEventsManager\Plugin::instance()->settings()->getEventType(\get_post_type($postId) ?: '') === null) {
+            return [];
+        }
+
+        $currency = \SCEventsManager\Plugin::instance()->settings()->currency();
+
+        return \array_map(
+            static fn (array $row): array => $row + [
+                'type_label' => \SCEventsManager\Support\TicketPrices::TYPES[$row['type']],
+                'label' => \SCEventsManager\Support\TicketPrices::rowLabel($row),
+                'display' => \SCEventsManager\Support\TicketPrices::rowPrice($row, $currency),
+            ],
+            \SCEventsManager\Support\TicketPrices::read($postId)
+        );
+    }
+}
+
+if (! function_exists('scem_the_ticket_prices')) {
+    /**
+     * Prints the full price breakdown for an event — the table a
+     * listing card deliberately doesn't have room for, plus any
+     * ticket conditions. Prints nothing when there are no prices, so
+     * it's safe to call unconditionally from a single-post template.
+     */
+    function scem_the_ticket_prices(?int $postId = null): void
+    {
+        $postId = $postId ?: \get_the_ID();
+        $rows = scem_get_ticket_prices($postId);
+        $notes = $postId ? \SCEventsManager\Support\TicketPrices::readNotes($postId) : '';
+
+        if ($rows === []) {
+            return;
+        }
+
+        \wp_enqueue_style('scem-frontend', SCEM_URL.'assets/css/frontend.css', [], SCEM_VERSION);
+
+        echo '<div class="scem-ticket-prices">';
+        echo '<table class="scem-ticket-prices-table"><caption class="screen-reader-text">Ticket prices</caption><tbody>';
+
+        foreach ($rows as $row) {
+            echo '<tr>'
+                .'<th scope="row">'.\esc_html($row['label']).'</th>'
+                .'<td>'.\esc_html($row['display']).'</td>'
+                .'</tr>';
+        }
+
+        echo '</tbody></table>';
+
+        if ($notes !== '') {
+            echo '<p class="scem-ticket-prices-notes">'.\esc_html($notes).'</p>';
+        }
+
+        echo '</div>';
+    }
+}

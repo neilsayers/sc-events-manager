@@ -158,6 +158,13 @@ final class OccurrenceCard
                     echo '<p class="scem-listing-price">'.\esc_html($occurrence['price']).'</p>';
                 }
 
+                // At most one extra line, so a card's height stays
+                // the same whether an event has two price tiers or
+                // eight — the full breakdown is on the event page.
+                if (($occurrence['price_note'] ?? '') !== '') {
+                    echo '<p class="scem-listing-price-note">'.\esc_html($occurrence['price_note']).'</p>';
+                }
+
                 break;
 
             case 'status_badge':

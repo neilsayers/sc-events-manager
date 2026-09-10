@@ -51,8 +51,8 @@ final class ListingSettingsPage implements Hookable
         <div class="wrap">
             <h1>Listing Display</h1>
             <p>
-                Choose which details show on each event in the <code>[sc_events]</code> front-end listing shortcode.
-                The title is always shown.
+                Choose which details show on each event in the <code>[sc_events]</code> front-end listing shortcode,
+                and the currency ticket prices are shown in. The title is always shown.
             </p>
 
             <?php \settings_errors('scem_listing_fields'); ?>
@@ -62,6 +62,13 @@ final class ListingSettingsPage implements Hookable
                 <input type="hidden" name="action" value="<?php echo \esc_attr(self::SAVE_ACTION); ?>">
 
                 <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row"><label for="scem_currency">Currency symbol</label></th>
+                        <td>
+                            <input type="text" id="scem_currency" name="currency" class="small-text" maxlength="3" value="<?php echo \esc_attr($this->settings->currency()); ?>">
+                            <p class="description">Prefixed to every ticket price, e.g. <code>£10</code>.</p>
+                        </td>
+                    </tr>
                     <tr>
                         <th scope="row">Fields</th>
                         <td>
@@ -94,6 +101,7 @@ final class ListingSettingsPage implements Hookable
 
         $fields = \array_map('sanitize_key', (array) ($_POST['fields'] ?? []));
         $this->settings->saveListingFields($fields);
+        $this->settings->saveCurrency(\sanitize_text_field(\wp_unslash((string) ($_POST['currency'] ?? '£'))));
 
         \add_settings_error('scem_listing_fields', 'scem_saved', \__('Settings saved.', 'sc-events-manager'), 'success');
         \set_transient('settings_errors', \get_settings_errors(), 30);
