@@ -51,6 +51,47 @@ if (! function_exists('scem_get_events')) {
     }
 }
 
+if (! function_exists('scem_get_event')) {
+    /**
+     * One event's full schedule — every occurrence of a single event
+     * post, in the same shape scem_get_events() returns per row. A
+     * one-day event returns a single row; a multi-day event returns
+     * one row per date in its range; a recurring event returns one
+     * row per date up to its recurrence_until (or an 18-month window,
+     * whichever comes first — same cap scem_get_events() itself
+     * uses). Meant for a single-event template, which needs the
+     * event's own whole schedule rather than a cross-event listing —
+     * scem_get_events() has no "just this one post" query shape.
+     *
+     * Returns [] when $postId isn't a configured event post type, or
+     * has no valid start date.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    function scem_get_event(?int $postId = null): array
+    {
+        $postId = $postId ?: \get_the_ID();
+        $settings = \SCEventsManager\Plugin::instance()->settings();
+
+        if (! $postId || $settings->getEventType(\get_post_type($postId) ?: '') === null) {
+            return [];
+        }
+
+        $startDate = (string) \get_post_meta($postId, '_scem_start_date', true);
+
+        if (! \preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+            return [];
+        }
+
+        $today = new \DateTimeImmutable('today');
+        $anchor = new \DateTimeImmutable($startDate);
+        $rangeStart = $anchor < $today ? $anchor : $today;
+        $rangeEnd = $rangeStart->modify('+18 months');
+
+        return (new \SCEventsManager\Calendar\EventOccurrences($settings))->forPost($postId, $rangeStart, $rangeEnd);
+    }
+}
+
 if (! function_exists('scem_get_ticket_prices')) {
     /**
      * An event's ticket price rows, ready to render: each row has a

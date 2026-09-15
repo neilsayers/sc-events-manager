@@ -4,6 +4,7 @@ namespace SCEventsManager\Calendar;
 
 use SCEventsManager\MetaBoxes\StatusMetaBox;
 use SCEventsManager\Settings\Settings;
+use SCEventsManager\Support\LocationFields;
 use SCEventsManager\Support\TicketPrices;
 
 /**
@@ -49,6 +50,14 @@ final class EventOccurrences
         'status' => 'The raw event status key (e.g. "scheduled", "cancelled") — see MetaBoxes\StatusMetaBox::CHOICES for the full set.',
         'status_label' => 'The human-readable label for status.',
         'venue_name' => 'The event\'s venue name, or "" if none is set.',
+        'venue_address' => 'The venue\'s street address, or "". Meant for the event\'s own page, not for cards.',
+        'venue_town' => 'The venue\'s town/city, or "".',
+        'venue_postcode' => 'The venue\'s postcode, or "".',
+        'venue_lat' => 'The venue\'s map latitude, or "" if it has never been pinned on the map.',
+        'venue_lng' => 'The venue\'s map longitude, or "" if it has never been pinned on the map.',
+        'venue_indoor' => 'True if the venue is (or includes) an indoor space.',
+        'venue_outdoor' => 'True if the venue is (or includes) an outdoor space.',
+        'venue_disabled_access' => 'True if the venue has disabled access.',
         'price' => 'Short display price derived from price_rows — "" (unpriced), "Free", "£20", or "From £5". Safe to print in a fixed-width card.',
         'price_rows' => 'array<int, array{type, type_label, label, age_from, age_under, free, amount, display}> — every ticket tier, in canonical order (Adult first). label is the display name with its age qualifier, e.g. "Child (under 5)"; display is the formatted price or "Free".',
         'price_from' => 'float|null — the cheapest paid amount, for sorting and price filters. null when the event is free or unpriced.',
@@ -136,40 +145,9 @@ final class EventOccurrences
         foreach ($posts as $post) {
             $eventType = $eventTypes[$post->post_type] ?? null;
             $typeLabel = $eventType['label_singular'] ?? $post->post_type;
-            $raw = $this->readRaw($post->ID);
 
-            if (! $args['include_cancelled'] && $raw['status'] === 'cancelled') {
-                continue;
-            }
-
-            $termSlugsByTaxonomy = $this->resolveTerms($post->ID, $post->post_type);
-
-            foreach ($this->occurrenceDates($raw, $rangeStart, $rangeEnd) as $occurrenceDate) {
-                $occurrences[] = [
-                    'event_id' => $post->ID,
-                    'post_type' => $post->post_type,
-                    'type_label' => $typeLabel,
-                    'title' => \get_the_title($post),
-                    'excerpt' => \get_the_excerpt($post),
-                    'featured_image_url' => \get_the_post_thumbnail_url($post, 'medium') ?: '',
-                    'date' => $occurrenceDate['date'],
-                    'start_time' => $occurrenceDate['start_time'],
-                    'end_time' => $occurrenceDate['end_time'],
-                    'is_multi_day_range' => $occurrenceDate['is_multi_day_range'],
-                    'is_recurring' => $occurrenceDate['is_recurring'],
-                    'status' => $raw['status'],
-                    'status_label' => StatusMetaBox::CHOICES[$raw['status']] ?? \ucfirst($raw['status']),
-                    'venue_name' => $this->resolveVenueName($raw),
-                    'price' => $raw['price'],
-                    'price_rows' => $raw['price_rows'],
-                    'price_from' => $raw['price_from'],
-                    'price_note' => $raw['price_note'],
-                    'ticket_notes' => $raw['ticket_notes'],
-                    'ticket_url' => $raw['ticket_url'],
-                    'terms_by_taxonomy' => $termSlugsByTaxonomy,
-                    'edit_url' => (string) \get_edit_post_link($post->ID, 'raw'),
-                    'view_url' => (string) \get_permalink($post->ID),
-                ];
+            foreach ($this->occurrencesForPost($post, $typeLabel, $rangeStart, $rangeEnd, $args['include_cancelled']) as $occurrence) {
+                $occurrences[] = $occurrence;
             }
         }
 
@@ -177,6 +155,92 @@ final class EventOccurrences
             $occurrences,
             static fn (array $a, array $b): int => [$a['date'], $a['start_time']] <=> [$b['date'], $b['start_time']]
         );
+
+        return $occurrences;
+    }
+
+    /**
+     * All of one event's own occurrences within a date range — the
+     * same per-occurrence shape forRange() returns, but scoped to a
+     * single known post instead of a get_posts() query across every
+     * configured event type. Used by scem_get_event() for a
+     * single-event template, which needs one event's whole schedule
+     * (every date of a multi-day range, every future hit of a
+     * recurring rule) rather than a cross-event listing.
+     *
+     * @return array<int, array<string, mixed>> Occurrences sorted by date then start time.
+     */
+    public function forPost(int $postId, \DateTimeImmutable $rangeStart, \DateTimeImmutable $rangeEnd, bool $includeCancelled = true): array
+    {
+        $post = \get_post($postId);
+
+        if (! $post instanceof \WP_Post) {
+            return [];
+        }
+
+        $eventType = $this->settings->allEventTypes()[$post->post_type] ?? null;
+        $typeLabel = $eventType['label_singular'] ?? $post->post_type;
+
+        $occurrences = $this->occurrencesForPost($post, $typeLabel, $rangeStart, $rangeEnd, $includeCancelled);
+
+        \usort(
+            $occurrences,
+            static fn (array $a, array $b): int => [$a['date'], $a['start_time']] <=> [$b['date'], $b['start_time']]
+        );
+
+        return $occurrences;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function occurrencesForPost(\WP_Post $post, string $typeLabel, \DateTimeImmutable $rangeStart, \DateTimeImmutable $rangeEnd, bool $includeCancelled): array
+    {
+        $raw = $this->readRaw($post->ID);
+
+        if (! $includeCancelled && $raw['status'] === 'cancelled') {
+            return [];
+        }
+
+        $termSlugsByTaxonomy = $this->resolveTerms($post->ID, $post->post_type);
+        $venueDetails = $this->resolveVenueDetails($raw, $post->ID);
+        $occurrences = [];
+
+        foreach ($this->occurrenceDates($raw, $rangeStart, $rangeEnd) as $occurrenceDate) {
+            $occurrences[] = [
+                'event_id' => $post->ID,
+                'post_type' => $post->post_type,
+                'type_label' => $typeLabel,
+                'title' => \get_the_title($post),
+                'excerpt' => \get_the_excerpt($post),
+                'featured_image_url' => \get_the_post_thumbnail_url($post, 'medium') ?: '',
+                'date' => $occurrenceDate['date'],
+                'start_time' => $occurrenceDate['start_time'],
+                'end_time' => $occurrenceDate['end_time'],
+                'is_multi_day_range' => $occurrenceDate['is_multi_day_range'],
+                'is_recurring' => $occurrenceDate['is_recurring'],
+                'status' => $raw['status'],
+                'status_label' => StatusMetaBox::CHOICES[$raw['status']] ?? \ucfirst($raw['status']),
+                'venue_name' => $this->resolveVenueName($raw),
+                'venue_address' => $venueDetails['venue_address'],
+                'venue_town' => $venueDetails['venue_town'],
+                'venue_postcode' => $venueDetails['venue_postcode'],
+                'venue_lat' => $venueDetails['venue_lat'],
+                'venue_lng' => $venueDetails['venue_lng'],
+                'venue_indoor' => $venueDetails['venue_indoor'],
+                'venue_outdoor' => $venueDetails['venue_outdoor'],
+                'venue_disabled_access' => $venueDetails['venue_disabled_access'],
+                'price' => $raw['price'],
+                'price_rows' => $raw['price_rows'],
+                'price_from' => $raw['price_from'],
+                'price_note' => $raw['price_note'],
+                'ticket_notes' => $raw['ticket_notes'],
+                'ticket_url' => $raw['ticket_url'],
+                'terms_by_taxonomy' => $termSlugsByTaxonomy,
+                'edit_url' => (string) \get_edit_post_link($post->ID, 'raw'),
+                'view_url' => (string) \get_permalink($post->ID),
+            ];
+        }
 
         return $occurrences;
     }
@@ -435,6 +499,21 @@ final class EventOccurrences
         }
 
         return $raw['venue_name'];
+    }
+
+    /**
+     * A saved Venue post stores its own address/map/access fields
+     * under the same _scem_venue_* keys as an event's own "manual
+     * venue" mode (see LocationFields) — so a linked venue's details
+     * come from reading that Venue post directly, the same call
+     * resolveVenueName() makes for its title, rather than the event's
+     * own (unset) manual fields.
+     *
+     * @return array<string, string|bool>
+     */
+    private function resolveVenueDetails(array $raw, int $postId): array
+    {
+        return LocationFields::readMeta($raw['venue_id'] > 0 ? (int) $raw['venue_id'] : $postId);
     }
 
     private function toDate(string $date): ?\DateTimeImmutable
