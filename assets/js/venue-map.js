@@ -3,8 +3,10 @@
  * this plugin's own bundled Leaflet (assets/vendor/leaflet), the same
  * one behind the admin's venue picker (event-meta-box.js), so a
  * single-event page's venue map never depends on another plugin (e.g.
- * SC Maps) being active. No marker styling/hover behaviour to match —
- * just OpenStreetMap tiles and Leaflet's own default pin.
+ * SC Maps) being active. The pin is this plugin's own .scem-marker-pin
+ * (frontend.css) — a plain coloured teardrop, no hover/click
+ * behaviour to match beyond the popup every marker on this site
+ * already gets.
  */
 (function () {
     'use strict';
@@ -14,6 +16,16 @@
         div.textContent = value == null ? '' : String(value);
 
         return div.innerHTML;
+    }
+
+    function buildIcon() {
+        return L.divIcon({
+            className: 'scem-marker-pin',
+            html: '<span class="scem-marker-pin__dot"></span>',
+            iconSize: [34, 34],
+            iconAnchor: [17, 34],
+            popupAnchor: [0, -34]
+        });
     }
 
     function initMap(container) {
@@ -32,7 +44,7 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var marker = L.marker([config.lat, config.lng]).addTo(map);
+        var marker = L.marker([config.lat, config.lng], { icon: buildIcon() }).addTo(map);
 
         if (config.name || config.address) {
             var popupHtml = config.name ? '<strong>' + escapeHtml(config.name) + '</strong>' : '';

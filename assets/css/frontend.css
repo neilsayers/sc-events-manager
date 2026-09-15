@@ -138,3 +138,31 @@
        the same way SC Maps' own .scm-map-display has to. */
     isolation: isolate;
 }
+
+/* Teardrop pin: a rotated square with three square corners and one
+   round one, drawn with a single border-radius shorthand. Same look
+   as SC Maps' own .scm-marker-pin (a coincidence worth keeping, not a
+   dependency — this plugin has no idea that one exists), so a site
+   running both plugins' maps still reads as one design language.
+   --scem-marker-colour lets a theme rebrand it without touching this
+   file; unset, it defaults to this site's own green. */
+.scem-marker-pin {
+    width: 34px;
+    height: 34px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: var(--scem-marker-colour, #00854A);
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scem-marker-pin__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    transform: rotate(45deg);
+}
