@@ -10,6 +10,7 @@ use SCEventsManager\Admin\ListingSettingsPage;
 use SCEventsManager\Admin\TaxonomiesPage;
 use SCEventsManager\Frontend\EventListingShortcode;
 use SCEventsManager\Frontend\EventsRestController;
+use SCEventsManager\Frontend\VenueMapAssets;
 use SCEventsManager\MetaBoxes\EventDetailsMetaBox;
 use SCEventsManager\MetaBoxes\OrganiserMetaBox;
 use SCEventsManager\MetaBoxes\RestrictionsMetaBox;
@@ -55,6 +56,7 @@ final class Plugin
             new ListingSettingsPage($this->settings),
             new EventListingShortcode($this->settings),
             new EventsRestController(),
+            new VenueMapAssets($this->settings),
             new DocumentationPage($this->settings),
             new EventPostTypes($this->settings),
             new EventTaxonomies($this->settings),

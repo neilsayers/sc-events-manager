@@ -92,6 +92,64 @@ if (! function_exists('scem_get_event')) {
     }
 }
 
+if (! function_exists('scem_render_venue_map')) {
+    /**
+     * A plain Leaflet/OpenStreetMap pin for one point — this plugin's
+     * own bundled map (Frontend\VenueMapAssets gets it onto the page;
+     * the same vendored Leaflet as the admin's venue picker), so a
+     * single-event template showing its venue's location never has to
+     * depend on another plugin (e.g. SC Maps) being active. Pass the
+     * venue_lat/venue_lng/venue_name/venue_address values
+     * scem_get_event() already gives you. Returns '' when lat/lng are
+     * missing — the venue has never been pinned on the admin map.
+     *
+     * @param array{lat: float|string, lng: float|string, name?: string, address?: string} $point
+     * @param array{height?: int} $args
+     */
+    function scem_render_venue_map(array $point, array $args = []): string
+    {
+        if (($point['lat'] ?? '') === '' || ($point['lng'] ?? '') === '') {
+            return '';
+        }
+
+        // Registered (not yet enqueued) by VenueMapAssets::maybeEnqueueStyles()
+        // early enough for its styles to print — the scripts are
+        // in_footer, so enqueuing them for real this late is still fine.
+        \wp_enqueue_script('scem-leaflet');
+        \wp_enqueue_script('scem-venue-map');
+
+        $height = \max(150, (int) ($args['height'] ?? 200));
+        $id = \uniqid('scem-venue-map-');
+
+        $config = [
+            'lat' => (float) $point['lat'],
+            'lng' => (float) $point['lng'],
+            'name' => (string) ($point['name'] ?? ''),
+            'address' => (string) ($point['address'] ?? ''),
+        ];
+
+        return \sprintf(
+            '<div id="%1$s" class="scem-venue-map" style="height:%2$dpx;" data-config="%3$s"></div>',
+            \esc_attr($id),
+            $height,
+            \esc_attr((string) \wp_json_encode($config))
+        );
+    }
+}
+
+if (! function_exists('scem_the_venue_map')) {
+    /**
+     * Echoes scem_render_venue_map() — for direct use in a template file.
+     *
+     * @param array{lat: float|string, lng: float|string, name?: string, address?: string} $point
+     * @param array{height?: int} $args
+     */
+    function scem_the_venue_map(array $point, array $args = []): void
+    {
+        echo scem_render_venue_map($point, $args); // phpcs:ignore WordPress.Security.EscapeOutput -- already-escaped HTML above.
+    }
+}
+
 if (! function_exists('scem_get_ticket_prices')) {
     /**
      * An event's ticket price rows, ready to render: each row has a

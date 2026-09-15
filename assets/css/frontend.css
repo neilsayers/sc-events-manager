@@ -123,3 +123,18 @@
     font-size: 0.9em;
     opacity: 0.8;
 }
+
+/* ---- Venue map (scem_render_venue_map()) ---- */
+
+.scem-venue-map {
+    width: 100%;
+    border-radius: 8px;
+    /* Leaflet's own panes run up to z-index 700 (tooltip-pane) inside
+       here — without a stacking context of its own, that's the page's
+       global stacking order, not just this map's, so those panes can
+       paint over a host site's fixed/sticky header despite it having
+       a much higher z-index than this element itself. isolate scopes
+       every z-index Leaflet sets to inside this box, however high,
+       the same way SC Maps' own .scm-map-display has to. */
+    isolation: isolate;
+}
