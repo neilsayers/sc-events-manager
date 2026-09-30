@@ -1,18 +1,21 @@
-# Builds the installable plugin zip and attaches it to a GitHub Release.
+# Publishes a GitHub Release whenever the plugin header's Version changes.
 #
-# Trigger: push a version tag —
-#   git tag v1.2.3 && git push origin v1.2.3
+# To release: bump "Version:" in sc-events-manager.php, commit, push to main.
+# That's all. This workflow tags vX.Y.Z, builds sc-events-manager.zip and
+# attaches it to the release. A push that leaves the version alone
+# does nothing.
 #
-# The zip contains a single top-level folder named "sc-events-manager", so
-# WordPress installs it under the right directory (GitHub's own
-# auto-generated source archives are named "owner-repo-<hash>" and
-# would not). screencandy.co.uk reads the latest release's version and
-# this zip's URL to build the download button on its plugins page.
+# The zip has a single top-level "sc-events-manager" folder, so WordPress installs
+# it under the right directory (GitHub's own source archives are named
+# "owner-repo-<hash>" and would not), and its readme's "Stable tag" is
+# set from the header, so the two can never disagree in what ships.
+# screencandy.co.uk reads the latest release's version and this zip's
+# URL to build the download button on its plugins page.
 name: Release
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
 
 permissions:
   contents: write
@@ -26,27 +29,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Tag must match the plugin header version
+      - name: Is this version already released?
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          header=$(grep -m1 -E '^[[:space:]*]*Version:' "$SLUG.php" | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
-          tag="${GITHUB_REF_NAME#v}"
-          if [ "$header" != "$tag" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match Version: $header in $SLUG.php"
-            exit 1
+          version=$(grep -m1 -E '^[[:space:]*]*Version:' "$SLUG.php" | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if gh release view "v$version" >/dev/null 2>&1; then
+            echo "v$version already released; nothing to do."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build zip
+        if: steps.check.outputs.new == 'true'
         run: |
           mkdir "build-$SLUG"
           rsync -a ./ "build-$SLUG/$SLUG/" \
-            --exclude='.git' --exclude='.github' --exclude='.gitignore' \
-            --exclude='.DS_Store' --exclude='node_modules' --exclude='tests' \
-            --exclude='CLAUDE.md' --exclude='phpunit*.xml*' \
-            --exclude='composer.json' --exclude='composer.lock' \
-            --exclude="build-$SLUG"
+            --exclude='/.git' --exclude='/.github' --exclude='/.gitignore' \
+            --exclude='.DS_Store' --exclude='/node_modules' --exclude='/tests' \
+            --exclude='/CLAUDE.md' --exclude='/phpunit*.xml*' \
+            --exclude='/composer.json' --exclude='/composer.lock' \
+            --exclude="/build-$SLUG"
+          if [ -f "build-$SLUG/$SLUG/readme.txt" ]; then
+            sed -i -E "s/^Stable tag:.*/Stable tag: ${{ steps.check.outputs.version }}/" "build-$SLUG/$SLUG/readme.txt"
+          fi
           (cd "build-$SLUG" && zip -rq "../$SLUG.zip" "$SLUG")
 
       - name: Publish release
+        if: steps.check.outputs.new == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "$SLUG.zip" --title "$GITHUB_REF_NAME" --generate-notes
+        run: |
+          gh release create "v${{ steps.check.outputs.version }}" "$SLUG.zip" \
+            --target "$GITHUB_SHA" --title "v${{ steps.check.outputs.version }}" --generate-notes
