@@ -1,0 +1,52 @@
+# Builds the installable plugin zip and attaches it to a GitHub Release.
+#
+# Trigger: push a version tag —
+#   git tag v1.2.3 && git push origin v1.2.3
+#
+# The zip contains a single top-level folder named "sc-events-manager", so
+# WordPress installs it under the right directory (GitHub's own
+# auto-generated source archives are named "owner-repo-<hash>" and
+# would not). screencandy.co.uk reads the latest release's version and
+# this zip's URL to build the download button on its plugins page.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  SLUG: sc-events-manager
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag must match the plugin header version
+        run: |
+          header=$(grep -m1 -E '^[[:space:]*]*Version:' "$SLUG.php" | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$header" != "$tag" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match Version: $header in $SLUG.php"
+            exit 1
+          fi
+
+      - name: Build zip
+        run: |
+          mkdir "build-$SLUG"
+          rsync -a ./ "build-$SLUG/$SLUG/" \
+            --exclude='.git' --exclude='.github' --exclude='.gitignore' \
+            --exclude='.DS_Store' --exclude='node_modules' --exclude='tests' \
+            --exclude='CLAUDE.md' --exclude='phpunit*.xml*' \
+            --exclude='composer.json' --exclude='composer.lock' \
+            --exclude="build-$SLUG"
+          (cd "build-$SLUG" && zip -rq "../$SLUG.zip" "$SLUG")
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$SLUG.zip" --title "$GITHUB_REF_NAME" --generate-notes
