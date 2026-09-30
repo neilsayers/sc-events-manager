@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.7.1
+Stable tag: 1.8.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,22 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.8.3 =
+* The venue map has its own on-brand green teardrop pin (`.scem-marker-pin`) instead of Leaflet's default blue one.
+  `--scem-marker-colour` lets a theme rebrand it.
+
+= 1.8.2 =
+* Events have their own venue map (`scem_render_venue_map()`), drawn with this plugin's bundled Leaflet, so it no longer
+  depends on SC Maps being active.
+
+= 1.8.1 =
+* Added `scem_get_event()` for single-event templates: one event's whole schedule (every date of a multi-day range,
+  every future hit of a recurring rule) plus full venue detail — address, town, postcode, coordinates, indoor/outdoor
+  and disabled access.
+
+= 1.8.0 =
+* Added arbitrary-month listing support to `scem_get_events()`; fixed multi-day events reverting to one-day.
 
 = 1.7.1 =
 * The "SC Events Manager" settings menu now reads "SC Events Manager" in the admin sidebar (not just the page title)
