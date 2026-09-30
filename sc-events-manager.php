@@ -4,7 +4,7 @@
  * Plugin Name:       SC Events Manager
  * Plugin URI:        https://screencandy.co.uk
  * Description:       A site-agnostic events calendar. On first activation, guides you through naming your own event post type (e.g. "Show", "Gig", "Class") before anything is registered.
- * Version:           1.8.3
+ * Version:           1.8.4
  * Requires at least: 6.6
  * Requires PHP:      8.1
  * Author:            Neil Sayers
@@ -20,7 +20,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('SCEM_VERSION', '1.8.3');
+define('SCEM_VERSION', '1.8.4');
 define('SCEM_FILE', __FILE__);
 define('SCEM_PATH', \plugin_dir_path(__FILE__));
 define('SCEM_URL', \plugin_dir_url(__FILE__));
@@ -49,5 +49,19 @@ define('SCEM_URL', \plugin_dir_url(__FILE__));
 \register_deactivation_hook(__FILE__, [Setup\Activator::class, 'deactivate']);
 
 require SCEM_PATH.'src/Frontend/template-functions.php';
+
+/*
+ * Not on WordPress.org, so the Plugins screen's "Update available" is
+ * pointed at this plugin's own GitHub Releases instead (Plugin Update
+ * Checker, vendored in lib/ — no build step). A release is published
+ * by .github/workflows/release.yml whenever the Version above changes;
+ * enableReleaseAssets() makes sites install that workflow's zip, which
+ * has the right folder name, rather than GitHub's source archive.
+ */
+require_once SCEM_PATH.'lib/plugin-update-checker/plugin-update-checker.php';
+
+\YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker('https://github.com/neilsayers/sc-events-manager/', SCEM_FILE, 'sc-events-manager')
+    ->getVcsApi()
+    ->enableReleaseAssets();
 
 Plugin::instance()->boot();

@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.8.4 =
+* Sites running this plugin now get the normal "Update available" notice in wp-admin, served from this plugin's GitHub Releases.
 
 = 1.8.3 =
 * The venue map has its own on-brand green teardrop pin (`.scem-marker-pin`) instead of Leaflet's default blue one.
