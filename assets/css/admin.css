@@ -300,3 +300,52 @@
     color: #646970;
     font-style: italic;
 }
+
+.scem-gallery-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.scem-gallery-item {
+    position: relative;
+    aspect-ratio: 1;
+    margin: 0;
+    background: #f0f0f1;
+    cursor: move;
+}
+
+.scem-gallery-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.scem-gallery-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 16px;
+    line-height: 22px;
+    cursor: pointer;
+}
+
+.scem-gallery-remove:hover {
+    background: #b32d2e;
+}
+
+.scem-gallery-count {
+    margin-left: 8px;
+    color: #646970;
+}

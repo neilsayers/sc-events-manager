@@ -57,6 +57,7 @@ final class EventMeta
             'ticket_url' => (string) \get_post_meta($postId, '_scem_ticket_url', true),
             'ticket_prices' => TicketPrices::read($postId),
             'ticket_notes' => TicketPrices::readNotes($postId),
+            'gallery' => Gallery::read($postId),
             // Derived from ticket_prices — see TicketPrices for why
             // the legacy string is still kept in step.
             'price' => (string) \get_post_meta($postId, '_scem_price', true),

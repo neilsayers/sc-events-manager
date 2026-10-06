@@ -15,6 +15,7 @@ use SCEventsManager\MetaBoxes\EventDetailsMetaBox;
 use SCEventsManager\MetaBoxes\OrganiserMetaBox;
 use SCEventsManager\MetaBoxes\RestrictionsMetaBox;
 use SCEventsManager\MetaBoxes\StatusMetaBox;
+use SCEventsManager\MetaBoxes\GalleryMetaBox;
 use SCEventsManager\MetaBoxes\TicketsMetaBox;
 use SCEventsManager\MetaBoxes\VenueDetailsMetaBox;
 use SCEventsManager\PostTypes\EventPostTypes;
@@ -62,6 +63,7 @@ final class Plugin
             new EventTaxonomies($this->settings),
             new EventDetailsMetaBox($this->settings),
             new TicketsMetaBox($this->settings),
+            new GalleryMetaBox($this->settings),
             new StatusMetaBox($this->settings),
             new OrganiserMetaBox($this->settings),
             new RestrictionsMetaBox($this->settings),

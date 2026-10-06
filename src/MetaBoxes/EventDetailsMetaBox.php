@@ -6,6 +6,7 @@ use SCEventsManager\Contracts\Hookable;
 use SCEventsManager\PostTypes\VenuePostType;
 use SCEventsManager\Settings\Settings;
 use SCEventsManager\Support\EventMeta;
+use SCEventsManager\Support\Gallery;
 use SCEventsManager\Support\LocationFields;
 use SCEventsManager\Support\MetaField;
 use SCEventsManager\Support\TicketPrices;
@@ -337,6 +338,7 @@ final class EventDetailsMetaBox implements Hookable
         $data = \wp_unslash($_POST['scem'] ?? []);
 
         $this->saveVenue($postId, $data);
+        Gallery::save($postId, \is_array($data['gallery'] ?? null) ? $data['gallery'] : []);
 
         $isOneDay = ! empty($data['is_one_day']);
         // '0', not '' — MetaField::saveValue() deletes on an empty
