@@ -141,6 +141,12 @@ final class OccurrenceCard
 
                 if ($occurrence['start_time'] !== '' && ! isset($occurrence['end_date'])) {
                     $when .= ' at '.$occurrence['start_time'];
+
+                    $endTime = (string) ($occurrence['end_time'] ?? '');
+
+                    if ($endTime !== '' && $endTime !== $occurrence['start_time']) {
+                        $when .= ' - '.$endTime;
+                    }
                 }
 
                 echo '<p class="scem-listing-datetime">'.\esc_html($when).'</p>';
