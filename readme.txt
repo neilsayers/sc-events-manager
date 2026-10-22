@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.9.2
+Stable tag: 1.10.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.10.0 =
+* Single event pages now output Schema.org Event structured data (JSON-LD) for search engines, built automatically from the event's own fields: title, excerpt, featured image, dates and times, status (scheduled/cancelled/postponed/sold out), venue with address and map coordinates, ticket prices and booking link, and organiser. Multi-day and recurring events get one Event per upcoming date. Turn off with the `scem_output_schema` filter; adjust with `scem_schema_event`.
 
 = 1.9.2 =
 * Tickets & Prices now uses the same form-table row layout as Location, Date & Time and Recurrence, and the section dividers now appear above both Recurrence and Tickets & Prices (the divider rule was skipping any heading that was first inside its own wrapper).
