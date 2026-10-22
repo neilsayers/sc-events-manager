@@ -8,7 +8,7 @@
     border-top: 1px solid #dcdcde;
 }
 
-.scem-event-details h3:first-of-type {
+.scem-event-details .inside > h3:first-of-type {
     margin-top: 0;
     padding-top: 0;
     border-top: none;
@@ -247,10 +247,6 @@
 }
 
 /* ---- Tickets & Prices meta box ---- */
-
-.scem-tickets-field {
-    max-width: 640px;
-}
 
 .scem-price-table {
     max-width: 720px;

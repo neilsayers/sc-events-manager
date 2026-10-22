@@ -59,46 +59,51 @@ final class TicketsMetaBox implements Hookable
         ?>
         <div class="scem-tickets">
             <h3>Tickets &amp; Prices</h3>
-            <p class="scem-tickets-field">
-                <label for="scem_ticket_url"><strong>Ticket/booking link</strong></label><br>
-                <input type="url" id="scem_ticket_url" name="scem[ticket_url]" class="large-text" value="<?php echo \esc_attr($meta['ticket_url']); ?>" placeholder="https://...">
-            </p>
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row"><label for="scem_ticket_url">Ticket/booking link</label></th>
+                    <td><input type="url" id="scem_ticket_url" name="scem[ticket_url]" class="large-text" value="<?php echo \esc_attr($meta['ticket_url']); ?>" placeholder="https://..."></td>
+                </tr>
+                <tr>
+                    <th scope="row">Prices</th>
+                    <td>
+                        <table class="scem-price-table widefat" id="scem_price_table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="scem-price-col-type">Ticket type</th>
+                                    <th scope="col" class="scem-price-col-age">Ages from</th>
+                                    <th scope="col" class="scem-price-col-age">Under</th>
+                                    <th scope="col" class="scem-price-col-amount">Price (<?php echo \esc_html($currency); ?>)</th>
+                                    <th scope="col" class="scem-price-col-free">Free</th>
+                                    <th scope="col" class="scem-price-col-remove"><span class="screen-reader-text">Remove</span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="scem_price_rows">
+                                <?php
+                                foreach ($rows as $index => $row) {
+                                    $this->renderRow($index, $row);
+                                }
+                                ?>
+                            </tbody>
+                        </table>
 
-            <p class="scem-tickets-field"><strong>Prices</strong></p>
+                        <p class="scem-price-empty" id="scem_price_empty"<?php echo $rows === [] ? '' : ' hidden'; ?>>
+                            No prices set — this event will show without a price. Add a row, or add one marked Free, to say so explicitly.
+                        </p>
 
-            <table class="scem-price-table widefat" id="scem_price_table">
-                <thead>
-                    <tr>
-                        <th scope="col" class="scem-price-col-type">Ticket type</th>
-                        <th scope="col" class="scem-price-col-age">Ages from</th>
-                        <th scope="col" class="scem-price-col-age">Under</th>
-                        <th scope="col" class="scem-price-col-amount">Price (<?php echo \esc_html($currency); ?>)</th>
-                        <th scope="col" class="scem-price-col-free">Free</th>
-                        <th scope="col" class="scem-price-col-remove"><span class="screen-reader-text">Remove</span></th>
-                    </tr>
-                </thead>
-                <tbody id="scem_price_rows">
-                    <?php
-                    foreach ($rows as $index => $row) {
-                        $this->renderRow($index, $row);
-                    }
-                    ?>
-                </tbody>
+                        <p>
+                            <button type="button" class="button" id="scem_add_price_row">Add price</button>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="scem_ticket_notes">Ticket conditions</label></th>
+                    <td>
+                        <textarea id="scem_ticket_notes" name="scem[ticket_notes]" class="large-text" rows="2" placeholder="e.g. Up to two children admitted free when accompanied by an adult."><?php echo \esc_textarea($meta['ticket_notes']); ?></textarea>
+                        <p class="description">Optional. Shown under the price table on the event's own page. Not shown on listing cards.</p>
+                    </td>
+                </tr>
             </table>
-
-            <p class="scem-price-empty" id="scem_price_empty"<?php echo $rows === [] ? '' : ' hidden'; ?>>
-                No prices set — this event will show without a price. Add a row, or add one marked Free, to say so explicitly.
-            </p>
-
-            <p>
-                <button type="button" class="button" id="scem_add_price_row">Add price</button>
-            </p>
-
-            <p class="scem-tickets-field">
-                <label for="scem_ticket_notes"><strong>Ticket conditions</strong> (optional)</label><br>
-                <textarea id="scem_ticket_notes" name="scem[ticket_notes]" class="large-text" rows="2" placeholder="e.g. Up to two children admitted free when accompanied by an adult."><?php echo \esc_textarea($meta['ticket_notes']); ?></textarea>
-                <span class="description">Shown under the price table on the event's own page. Not shown on listing cards.</span>
-            </p>
 
             <?php $this->renderRowTemplate(); ?>
         </div>

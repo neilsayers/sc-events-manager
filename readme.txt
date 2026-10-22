@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.9.1
+Stable tag: 1.9.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.9.2 =
+* Tickets & Prices now uses the same form-table row layout as Location, Date & Time and Recurrence, and the section dividers now appear above both Recurrence and Tickets & Prices (the divider rule was skipping any heading that was first inside its own wrapper).
 
 = 1.9.1 =
 * Tickets & Prices moved out of its own box and into Event Details, directly beneath Recurrence, so everything about when, where and how much sits in one place. Saved data is unchanged.
