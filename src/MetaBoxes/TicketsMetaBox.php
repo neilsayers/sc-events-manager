@@ -10,10 +10,11 @@ use SCEventsManager\Support\TicketPrices;
 /**
  * The ticket link, the price rows, and the conditions note.
  *
- * Unlike the other secondary boxes this one sits in the "normal"
- * context rather than the sidebar: a price row is four controls
- * wide, which a ~280px sidebar column can't lay out without
- * wrapping every one of them onto its own line.
+ * No longer a meta box of its own: a price row is four controls
+ * wide, too much for the sidebar, so it is drawn by
+ * EventDetailsMetaBox as the "Tickets & Prices" section beneath
+ * Recurrence, via renderSection(). This class still owns the
+ * section's markup and its admin assets.
  *
  * Saving is still handled entirely by
  * EventDetailsMetaBox::saveMetaBox(), see that class's docblock.
@@ -26,35 +27,12 @@ final class TicketsMetaBox implements Hookable
 
     public function register(): void
     {
-        \add_action('add_meta_boxes', [$this, 'addMetaBox']);
         \add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
     }
 
     private function isEventPostType(string $postType): bool
     {
         return $this->settings->getEventType($postType) !== null;
-    }
-
-    public function addMetaBox(): void
-    {
-        $eventPostTypes = \array_keys($this->settings->allEventTypes());
-
-        // add_meta_box() treats an empty $screen array as "use the
-        // current screen" rather than "no screens" — without this
-        // guard, zero configured event types means this box would
-        // register itself on whatever post type is being edited.
-        if ($eventPostTypes === []) {
-            return;
-        }
-
-        \add_meta_box(
-            'scem_tickets',
-            'Tickets & Prices',
-            [$this, 'render'],
-            $eventPostTypes,
-            'normal',
-            'default'
-        );
     }
 
     public function enqueueAssets(string $hook): void
@@ -71,13 +49,16 @@ final class TicketsMetaBox implements Hookable
         \wp_enqueue_script('scem-ticket-prices', SCEM_URL.'assets/js/ticket-prices.js', [], SCEM_VERSION, true);
     }
 
-    public function render(\WP_Post $post): void
+    /**
+     * @param array<string, mixed> $meta EventMeta::read() for the post
+     */
+    public function renderSection(array $meta): void
     {
-        $meta = EventMeta::read($post->ID);
         $rows = $meta['ticket_prices'];
         $currency = $this->settings->currency();
         ?>
         <div class="scem-tickets">
+            <h3>Tickets &amp; Prices</h3>
             <p class="scem-tickets-field">
                 <label for="scem_ticket_url"><strong>Ticket/booking link</strong></label><br>
                 <input type="url" id="scem_ticket_url" name="scem[ticket_url]" class="large-text" value="<?php echo \esc_attr($meta['ticket_url']); ?>" placeholder="https://...">

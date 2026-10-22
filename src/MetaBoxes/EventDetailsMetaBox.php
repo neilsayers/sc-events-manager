@@ -16,10 +16,11 @@ use SCEventsManager\Support\TicketPrices;
  * content editor via edit_form_after_title — add_meta_box() can only
  * place things in the columns below the editor, not above it.
  *
- * Covers Location, Date & Time, and Recurrence — the sections that
+ * Covers Location, Date & Time, Recurrence, and Tickets & Prices (the
+ * latter drawn by TicketsMetaBox::renderSection()) — the sections that
  * benefit from the main column's extra width (the map, the per-date
- * times table). Tickets, Status, Organiser, and Restrictions live in
- * their own side meta boxes (see the other classes in this
+ * times table, the price rows). Status, Organiser, and Restrictions
+ * live in their own side meta boxes (see the other classes in this
  * namespace), but this class still owns saveMetaBox() for all of it:
  * a meta box is just a visual container, every field posts through
  * the same <form> regardless of which box draws it, so one save
@@ -200,6 +201,8 @@ final class EventDetailsMetaBox implements Hookable
                         </tr>
                     </table>
                 </div>
+
+                <?php (new TicketsMetaBox($this->settings))->renderSection($meta); ?>
 
             </div>
         </div>
