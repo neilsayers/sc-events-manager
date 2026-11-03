@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.11.2
+Stable tag: 1.11.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.11.3 =
+* Event occurrences include `responsible_adult_required`. The listing-card age ribbon now also covers under-age limits ("Under 12s only"); when an event has both limits the minimum age is shown.
 
 = 1.11.2 =
 * Event occurrences now also include `age_under` — the upper age limit when an event is age restricted, otherwise empty — alongside `age_over`.

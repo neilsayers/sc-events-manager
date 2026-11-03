@@ -65,6 +65,7 @@ final class EventOccurrences
         'ticket_notes' => 'Free-text conditions attached to the prices (e.g. "... free if accompanied by an adult"), or "". Meant for the event\'s own page, not for cards.',
         'ticket_url' => 'The ticket/booking link, or "" if none was set.',
         'age_under' => 'The age the event is limited to being under (e.g. "12") when it is age restricted with an upper limit, or "" when it has none.',
+        'responsible_adult_required' => 'True when the event is age restricted with an upper limit and children under it need a responsible adult with them.',
         'age_over' => 'The minimum age (e.g. "18") when the event is age restricted with a lower limit, or "" when it has none.',
         'terms_by_taxonomy' => 'array<string, string[]> — term slugs the event is assigned to, keyed by taxonomy.',
         'edit_url' => 'The wp-admin edit-post link. PHP-only (scem_get_events()) — stripped from the public REST response.',
@@ -240,6 +241,7 @@ final class EventOccurrences
                 'ticket_url' => $raw['ticket_url'],
                 'age_over' => $raw['age_over'],
                 'age_under' => $raw['age_under'],
+                'responsible_adult_required' => $raw['responsible_adult_required'],
                 'terms_by_taxonomy' => $termSlugsByTaxonomy,
                 'edit_url' => (string) \get_edit_post_link($post->ID, 'raw'),
                 'view_url' => (string) \get_permalink($post->ID),
@@ -587,6 +589,8 @@ final class EventOccurrences
             'age_under' => \get_post_meta($postId, '_scem_age_restricted', true)
                 ? (string) \get_post_meta($postId, '_scem_age_under', true)
                 : '',
+            'responsible_adult_required' => (bool) \get_post_meta($postId, '_scem_age_restricted', true)
+                && (bool) \get_post_meta($postId, '_scem_responsible_adult_required', true),
         ];
     }
 }

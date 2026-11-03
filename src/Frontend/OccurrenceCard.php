@@ -18,8 +18,15 @@ final class OccurrenceCard
         $classes = \array_merge(['scem-listing-item'], self::modifierClasses($occurrence, $index, $total));
         ?>
         <div class="<?php echo \esc_attr(\implode(' ', $classes)); ?>">
-            <?php if (($occurrence['age_over'] ?? '') !== '') : ?>
-                <span class="scem-listing-age-ribbon"><span>Over <?php echo \esc_html($occurrence['age_over']); ?>s only</span></span>
+            <?php
+            // One limit only, so the ribbon stays short: a minimum age
+            // wins over a maximum age when an event has both.
+            $ageRibbon = ($occurrence['age_over'] ?? '') !== ''
+                ? 'Over '.$occurrence['age_over'].'s only'
+                : (($occurrence['age_under'] ?? '') !== '' ? 'Under '.$occurrence['age_under'].'s only' : '');
+            ?>
+            <?php if ($ageRibbon !== '') : ?>
+                <span class="scem-listing-age-ribbon"><span><?php echo \esc_html($ageRibbon); ?></span></span>
             <?php endif; ?>
 
             <?php if (\in_array('featured_image', $fields, true) && $occurrence['featured_image_url'] !== '') : ?>
@@ -115,7 +122,7 @@ final class OccurrenceCard
             $modifiers[] = 'has-tickets';
         }
 
-        if (($occurrence['age_over'] ?? '') !== '') {
+        if (($occurrence['age_over'] ?? '') !== '' || ($occurrence['age_under'] ?? '') !== '') {
             $modifiers[] = 'age-restricted';
         }
 
