@@ -18,6 +18,10 @@ final class OccurrenceCard
         $classes = \array_merge(['scem-listing-item'], self::modifierClasses($occurrence, $index, $total));
         ?>
         <div class="<?php echo \esc_attr(\implode(' ', $classes)); ?>">
+            <?php if (($occurrence['age_over'] ?? '') !== '') : ?>
+                <span class="scem-listing-age-ribbon"><span>Over <?php echo \esc_html($occurrence['age_over']); ?>s only</span></span>
+            <?php endif; ?>
+
             <?php if (\in_array('featured_image', $fields, true) && $occurrence['featured_image_url'] !== '') : ?>
                 <div class="scem-listing-image">
                     <a href="<?php echo \esc_url($occurrence['view_url']); ?>">
@@ -109,6 +113,10 @@ final class OccurrenceCard
 
         if ($occurrence['ticket_url'] !== '') {
             $modifiers[] = 'has-tickets';
+        }
+
+        if (($occurrence['age_over'] ?? '') !== '') {
+            $modifiers[] = 'age-restricted';
         }
 
         $modifiers[] = 'type-'.$occurrence['post_type'];
