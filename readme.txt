@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.11.4
+Stable tag: 1.12.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.12.0 =
+* Optional "Doors open" time on events, set per event and, for multi-day events with different times per date, per date. Included in event data as `doors_time` and in the event structured data as `doorTime`.
 
 = 1.11.4 =
 * Listing-card age ribbon reads "Ages 12-16 only" when an event has both a minimum and a maximum age.
