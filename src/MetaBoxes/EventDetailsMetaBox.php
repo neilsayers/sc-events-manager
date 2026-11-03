@@ -132,6 +132,13 @@ final class EventDetailsMetaBox implements Hookable
                         <td><input type="date" id="scem_end_date" name="scem[end_date]" value="<?php echo \esc_attr($meta['end_date']); ?>"></td>
                     </tr>
                     <tr>
+                        <th scope="row">Doors open</th>
+                        <td>
+                            <?php $this->renderHourMinuteSelect('scem[doors_time_hour]', 'scem[doors_time_minute]', $meta['doors_time_hour'], $meta['doors_time_minute']); ?>
+                            <span class="description">Optional.</span>
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Start time</th>
                         <td><?php $this->renderHourMinuteSelect('scem[start_time_hour]', 'scem[start_time_minute]', $meta['start_time_hour'], $meta['start_time_minute']); ?></td>
                     </tr>
@@ -152,7 +159,7 @@ final class EventDetailsMetaBox implements Hookable
                         <th scope="row">Times per date</th>
                         <td>
                             <table id="scem-date-times-table" class="widefat striped">
-                                <thead><tr><th>Date</th><th>Start</th><th>End</th></tr></thead>
+                                <thead><tr><th>Date</th><th>Doors</th><th>Start</th><th>End</th></tr></thead>
                                 <tbody>
                                     <?php $this->renderDateTimeRows($meta['start_date'], $meta['end_date'], $meta['date_times']); ?>
                                 </tbody>
@@ -279,10 +286,11 @@ final class EventDetailsMetaBox implements Hookable
     private function renderDateTimeRows(string $startDate, string $endDate, array $dateTimes): void
     {
         foreach ($this->dateRange($startDate, $endDate) as $date) {
-            $existing = $dateTimes[$date] ?? ['start_hour' => '', 'start_minute' => '', 'end_hour' => '', 'end_minute' => ''];
+            $existing = $dateTimes[$date] ?? ['doors_hour' => '', 'doors_minute' => '', 'start_hour' => '', 'start_minute' => '', 'end_hour' => '', 'end_minute' => ''];
             ?>
             <tr>
                 <td><?php echo \esc_html($date); ?></td>
+                <td><?php $this->renderHourMinuteSelect("scem[date_times][{$date}][doors_hour]", "scem[date_times][{$date}][doors_minute]", $existing['doors_hour'] ?? '', $existing['doors_minute'] ?? ''); ?></td>
                 <td><?php $this->renderHourMinuteSelect("scem[date_times][{$date}][start_hour]", "scem[date_times][{$date}][start_minute]", $existing['start_hour'], $existing['start_minute']); ?></td>
                 <td><?php $this->renderHourMinuteSelect("scem[date_times][{$date}][end_hour]", "scem[date_times][{$date}][end_minute]", $existing['end_hour'], $existing['end_minute']); ?></td>
             </tr>
@@ -354,6 +362,7 @@ final class EventDetailsMetaBox implements Hookable
         MetaField::saveValue($postId, '_scem_start_date', $this->sanitizeDate($data['start_date'] ?? ''));
         MetaField::saveValue($postId, '_scem_end_date', $isOneDay ? '' : $this->sanitizeDate($data['end_date'] ?? ''));
         MetaField::saveValue($postId, '_scem_start_time', $this->sanitizeTime($data['start_time_hour'] ?? '', $data['start_time_minute'] ?? ''));
+        MetaField::saveValue($postId, '_scem_doors_time', $this->sanitizeTime($data['doors_time_hour'] ?? '', $data['doors_time_minute'] ?? ''));
         MetaField::saveValue($postId, '_scem_end_time', $this->sanitizeTime($data['end_time_hour'] ?? '', $data['end_time_minute'] ?? ''));
 
         $differentTimes = ! $isOneDay && ! empty($data['different_times_per_date']);
@@ -488,6 +497,7 @@ final class EventDetailsMetaBox implements Hookable
             }
 
             $dateTimes[$date] = [
+                'doors' => $this->sanitizeTime($times['doors_hour'] ?? '', $times['doors_minute'] ?? ''),
                 'start' => $this->sanitizeTime($times['start_hour'] ?? '', $times['start_minute'] ?? ''),
                 'end' => $this->sanitizeTime($times['end_hour'] ?? '', $times['end_minute'] ?? ''),
             ];

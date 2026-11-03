@@ -43,6 +43,7 @@ final class EventOccurrences
         'excerpt' => 'The event\'s excerpt (falls back to an auto-generated one from its content if none was set).',
         'featured_image_url' => 'Medium-size featured image URL, or "" if it has none.',
         'date' => 'This occurrence\'s date, Y-m-d.',
+        'doors_time' => 'Doors-open time, H:i (24-hour), or "" if none was set.',
         'start_time' => 'Start time, H:i (24-hour), or "" if none was set.',
         'end_time' => 'End time, H:i (24-hour), or "" if none was set.',
         'is_multi_day_range' => 'True if this occurrence is one date within a multi-day event\'s range.',
@@ -218,6 +219,7 @@ final class EventOccurrences
                 'excerpt' => \get_the_excerpt($post),
                 'featured_image_url' => \get_the_post_thumbnail_url($post, 'medium') ?: '',
                 'date' => $occurrenceDate['date'],
+                'doors_time' => $occurrenceDate['doors_time'],
                 'start_time' => $occurrenceDate['start_time'],
                 'end_time' => $occurrenceDate['end_time'],
                 'is_multi_day_range' => $occurrenceDate['is_multi_day_range'],
@@ -252,7 +254,7 @@ final class EventOccurrences
     }
 
     /**
-     * @return array<int, array{date: string, start_time: string, end_time: string}>
+     * @return array<int, array{date: string, doors_time: string, start_time: string, end_time: string}>
      */
     private function occurrenceDates(array $raw, \DateTimeImmutable $rangeStart, \DateTimeImmutable $rangeEnd): array
     {
@@ -262,7 +264,7 @@ final class EventOccurrences
             return [];
         }
 
-        $defaultTimes = ['start_time' => $raw['start_time'], 'end_time' => $raw['end_time']];
+        $defaultTimes = ['doors_time' => $raw['doors_time'], 'start_time' => $raw['start_time'], 'end_time' => $raw['end_time']];
 
         if ($raw['is_one_day']) {
             if ($raw['recurrence_frequency'] !== '') {
@@ -280,7 +282,7 @@ final class EventOccurrences
     }
 
     /**
-     * @return array<int, array{date: string, start_time: string, end_time: string}>
+     * @return array<int, array{date: string, doors_time: string, start_time: string, end_time: string}>
      */
     private function expandDateRange(\DateTimeImmutable $startDate, array $raw, \DateTimeImmutable $rangeStart, \DateTimeImmutable $rangeEnd, array $defaultTimes): array
     {
@@ -300,6 +302,7 @@ final class EventOccurrences
 
             $occurrences[] = [
                 'date' => $dateKey,
+                'doors_time' => $override['doors'] ?? $defaultTimes['doors_time'],
                 'start_time' => $override['start'] ?? $defaultTimes['start_time'],
                 'end_time' => $override['end'] ?? $defaultTimes['end_time'],
                 'is_multi_day_range' => true,
@@ -313,7 +316,7 @@ final class EventOccurrences
     }
 
     /**
-     * @return array<int, array{date: string, start_time: string, end_time: string}>
+     * @return array<int, array{date: string, doors_time: string, start_time: string, end_time: string}>
      */
     private function expandRecurrence(\DateTimeImmutable $startDate, array $raw, \DateTimeImmutable $rangeStart, \DateTimeImmutable $rangeEnd, array $defaultTimes): array
     {
@@ -557,6 +560,7 @@ final class EventOccurrences
             'is_one_day' => $isOneDayMeta === '' ? true : (bool) $isOneDayMeta,
             'start_date' => (string) \get_post_meta($postId, '_scem_start_date', true),
             'end_date' => (string) \get_post_meta($postId, '_scem_end_date', true),
+            'doors_time' => (string) \get_post_meta($postId, '_scem_doors_time', true),
             'start_time' => (string) \get_post_meta($postId, '_scem_start_time', true),
             'end_time' => (string) \get_post_meta($postId, '_scem_end_time', true),
             'different_times_per_date' => (bool) \get_post_meta($postId, '_scem_different_times_per_date', true),

@@ -24,11 +24,13 @@ final class EventMeta
         foreach ($rawDateTimes as $date => $pair) {
             [$startHour, $startMinute] = self::splitTime($pair['start'] ?? '');
             [$endHour, $endMinute] = self::splitTime($pair['end'] ?? '');
-            $dateTimes[$date] = ['start_hour' => $startHour, 'start_minute' => $startMinute, 'end_hour' => $endHour, 'end_minute' => $endMinute];
+            [$doorsHour, $doorsMinute] = self::splitTime($pair['doors'] ?? '');
+            $dateTimes[$date] = ['doors_hour' => $doorsHour, 'doors_minute' => $doorsMinute, 'start_hour' => $startHour, 'start_minute' => $startMinute, 'end_hour' => $endHour, 'end_minute' => $endMinute];
         }
 
         [$startTimeHour, $startTimeMinute] = self::splitTime((string) \get_post_meta($postId, '_scem_start_time', true));
         [$endTimeHour, $endTimeMinute] = self::splitTime((string) \get_post_meta($postId, '_scem_end_time', true));
+        [$doorsTimeHour, $doorsTimeMinute] = self::splitTime((string) \get_post_meta($postId, '_scem_doors_time', true));
 
         $recurrenceDays = \get_post_meta($postId, '_scem_recurrence_days', true);
 
@@ -41,6 +43,8 @@ final class EventMeta
             'end_date' => (string) \get_post_meta($postId, '_scem_end_date', true),
             'start_time_hour' => $startTimeHour,
             'start_time_minute' => $startTimeMinute,
+            'doors_time_hour' => $doorsTimeHour,
+            'doors_time_minute' => $doorsTimeMinute,
             'end_time_hour' => $endTimeHour,
             'end_time_minute' => $endTimeMinute,
             'different_times_per_date' => (bool) \get_post_meta($postId, '_scem_different_times_per_date', true),

@@ -137,15 +137,17 @@
             var date = row.getAttribute('data-date');
             var selects = row.querySelectorAll('select');
 
-            if (!date || selects.length < 4) {
+            if (!date || selects.length < 6) {
                 return;
             }
 
             cache[date] = {
-                start_hour: selects[0].value,
-                start_minute: selects[1].value,
-                end_hour: selects[2].value,
-                end_minute: selects[3].value
+                doors_hour: selects[0].value,
+                doors_minute: selects[1].value,
+                start_hour: selects[2].value,
+                start_minute: selects[3].value,
+                end_hour: selects[4].value,
+                end_minute: selects[5].value
             };
         });
     }
@@ -163,6 +165,7 @@
             dateCell.textContent = date;
             row.appendChild(dateCell);
 
+            row.appendChild(timeCell('date_times][' + date + '][doors', existing.doors_hour, existing.doors_minute));
             row.appendChild(timeCell('date_times][' + date + '][start', existing.start_hour, existing.start_minute));
             row.appendChild(timeCell('date_times][' + date + '][end', existing.end_hour, existing.end_minute));
 

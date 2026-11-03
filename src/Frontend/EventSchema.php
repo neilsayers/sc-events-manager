@@ -117,6 +117,10 @@ final class EventSchema implements Hookable
             'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
         ];
 
+        if (($o['doors_time'] ?? '') !== '') {
+            $event['doorTime'] = $this->dateTime($o['date'], $o['doors_time']);
+        }
+
         if ($o['end_time'] !== '') {
             $event['endDate'] = $this->dateTime($o['date'], $o['end_time']);
         }
