@@ -19,11 +19,13 @@ final class OccurrenceCard
         ?>
         <div class="<?php echo \esc_attr(\implode(' ', $classes)); ?>">
             <?php
-            // One limit only, so the ribbon stays short: a minimum age
-            // wins over a maximum age when an event has both.
-            $ageRibbon = ($occurrence['age_over'] ?? '') !== ''
-                ? 'Over '.$occurrence['age_over'].'s only'
-                : (($occurrence['age_under'] ?? '') !== '' ? 'Under '.$occurrence['age_under'].'s only' : '');
+            // Both limits read as a range ("Ages 12-16 only"); a single
+            // limit as "Over 18s only" / "Under 12s only".
+            $ageOver = (string) ($occurrence['age_over'] ?? '');
+            $ageUnder = (string) ($occurrence['age_under'] ?? '');
+            $ageRibbon = $ageOver !== '' && $ageUnder !== ''
+                ? 'Ages '.$ageOver.'-'.$ageUnder.' only'
+                : ($ageOver !== '' ? 'Over '.$ageOver.'s only' : ($ageUnder !== '' ? 'Under '.$ageUnder.'s only' : ''));
             ?>
             <?php if ($ageRibbon !== '') : ?>
                 <span class="scem-listing-age-ribbon"><span><?php echo \esc_html($ageRibbon); ?></span></span>
