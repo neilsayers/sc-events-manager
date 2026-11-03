@@ -64,6 +64,7 @@ final class EventOccurrences
         'price_note' => 'One short "... free" line to sit under price on a card (e.g. "Under 5s free"), or "" when there isn\'t one. Never more than one.',
         'ticket_notes' => 'Free-text conditions attached to the prices (e.g. "... free if accompanied by an adult"), or "". Meant for the event\'s own page, not for cards.',
         'ticket_url' => 'The ticket/booking link, or "" if none was set.',
+        'age_over' => 'The minimum age (e.g. "18") when the event is age restricted with a lower limit, or "" when it has none.',
         'terms_by_taxonomy' => 'array<string, string[]> — term slugs the event is assigned to, keyed by taxonomy.',
         'edit_url' => 'The wp-admin edit-post link. PHP-only (scem_get_events()) — stripped from the public REST response.',
         'view_url' => 'The event\'s own front-end permalink.',
@@ -236,6 +237,7 @@ final class EventOccurrences
                 'price_note' => $raw['price_note'],
                 'ticket_notes' => $raw['ticket_notes'],
                 'ticket_url' => $raw['ticket_url'],
+                'age_over' => $raw['age_over'],
                 'terms_by_taxonomy' => $termSlugsByTaxonomy,
                 'edit_url' => (string) \get_edit_post_link($post->ID, 'raw'),
                 'view_url' => (string) \get_permalink($post->ID),
@@ -575,6 +577,11 @@ final class EventOccurrences
             'price_note' => TicketPrices::freeNote($priceRows),
             'ticket_notes' => TicketPrices::readNotes($postId),
             'ticket_url' => (string) \get_post_meta($postId, '_scem_ticket_url', true),
+            // Only meaningful while "age restricted" is ticked — the
+            // box can be unticked with an old number left behind.
+            'age_over' => \get_post_meta($postId, '_scem_age_restricted', true)
+                ? (string) \get_post_meta($postId, '_scem_age_over', true)
+                : '',
         ];
     }
 }
