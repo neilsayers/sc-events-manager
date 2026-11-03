@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.11.1
+Stable tag: 1.11.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.11.2 =
+* Event occurrences now also include `age_under` — the upper age limit when an event is age restricted, otherwise empty — alongside `age_over`.
 
 = 1.11.1 =
 * Listing cards show an "Over 18s only" corner ribbon for age-restricted events (and an `scem-listing-item--age-restricted` class). Recolour with the `--scem-ribbon-bg` / `--scem-ribbon-color` CSS variables.
