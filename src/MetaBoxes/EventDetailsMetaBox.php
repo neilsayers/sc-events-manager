@@ -44,6 +44,7 @@ final class EventDetailsMetaBox implements Hookable
         \add_action('save_post', [$this, 'saveMetaBox']);
         \add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
         \add_action('admin_notices', [$this, 'maybeShowVenueSavedNotice']);
+        \add_action('admin_notices', [$this, 'maybeShowProblemsNotice']);
     }
 
     private function isEventPostType(string $postType): bool
@@ -401,6 +402,14 @@ final class EventDetailsMetaBox implements Hookable
         MetaField::saveText($postId, '_scem_organiser_name', $data['organiser_name'] ?? '');
         MetaField::saveValue($postId, '_scem_organiser_email', \sanitize_email($data['organiser_email'] ?? ''));
         MetaField::saveText($postId, '_scem_organiser_phone', $data['organiser_phone'] ?? '');
+
+        $problems = $this->findProblems($postId);
+
+        if ($problems !== []) {
+            \set_transient($this->problemsTransientKey($postId), $problems, 5 * MINUTE_IN_SECONDS);
+        } else {
+            \delete_transient($this->problemsTransientKey($postId));
+        }
     }
 
     /**
@@ -477,6 +486,83 @@ final class EventDetailsMetaBox implements Hookable
             '<div class="notice notice-success is-dismissible"><p>%s</p></div>',
             \esc_html__('Venue saved — manage it under Events Manager → Venues.', 'sc-events-manager')
         );
+    }
+
+    /**
+     * Server-side backstop for the checks event-meta-box.js runs before
+     * submit (in case JS was off or the post was saved some other way).
+     * Values are saved as entered — rejecting them would silently lose
+     * the editor's input — but each problem is listed in a notice on the
+     * reloaded edit screen, since most of them make the event quietly
+     * vanish from every listing.
+     *
+     * @return array<int, array{level: 'error'|'warning', message: string}>
+     */
+    private function findProblems(int $postId): array
+    {
+        $meta = EventMeta::read($postId);
+        $problems = [];
+        $start = $meta['start_date'];
+
+        if ($start === '') {
+            $problems[] = ['level' => 'error', 'message' => \__('No start date is set, so this event won’t appear in any listing.', 'sc-events-manager')];
+
+            return $problems;
+        }
+
+        if (! $meta['is_one_day']) {
+            if ($meta['end_date'] === '') {
+                $problems[] = ['level' => 'warning', 'message' => \__('This is a multi-day event but no end date is set, so it’s being treated as a single day.', 'sc-events-manager')];
+            } elseif ($meta['end_date'] < $start) {
+                $problems[] = ['level' => 'error', 'message' => \__('The end date is before the start date, so this event won’t appear in any listing. Check the year.', 'sc-events-manager')];
+            }
+        }
+
+        if ($meta['recurrence_frequency'] !== '' && $meta['recurrence_until'] !== '' && $meta['recurrence_until'] < $start) {
+            $problems[] = ['level' => 'error', 'message' => \__('The repeat “Ends on” date is before the start date, so this event won’t appear in any listing.', 'sc-events-manager')];
+        }
+
+        $ageOver = $meta['age_over'];
+        $ageUnder = $meta['age_under'];
+
+        if ($ageOver !== '' && $ageUnder !== '' && (int) $ageOver > (int) $ageUnder) {
+            $problems[] = ['level' => 'error', 'message' => \__('The minimum age is higher than the maximum age.', 'sc-events-manager')];
+        }
+
+        return $problems;
+    }
+
+    private function problemsTransientKey(int $postId): string
+    {
+        return 'scem_problems_'.$postId.'_'.\get_current_user_id();
+    }
+
+    public function maybeShowProblemsNotice(): void
+    {
+        $screen = \get_current_screen();
+        $postId = (int) ($_GET['post'] ?? 0);
+
+        if (! $screen || $screen->base !== 'post' || $postId <= 0) {
+            return;
+        }
+
+        $key = $this->problemsTransientKey($postId);
+        $problems = \get_transient($key);
+
+        if (! \is_array($problems) || $problems === []) {
+            return;
+        }
+
+        \delete_transient($key);
+
+        foreach ($problems as $problem) {
+            printf(
+                '<div class="notice notice-%s"><p><strong>%s</strong> %s</p></div>',
+                $problem['level'] === 'error' ? 'error' : 'warning',
+                \esc_html__('Event details:', 'sc-events-manager'),
+                \esc_html($problem['message'])
+            );
+        }
     }
 
     private function saveDateTimes(int $postId, bool $differentTimes, array $rows): void

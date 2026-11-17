@@ -8,7 +8,95 @@
         initDateTimesTable();
         initMap();
         initVenueSelect();
+        initValidation();
     });
+
+    /* ---- Pre-save checks (mirrored server-side in EventDetailsMetaBox::findProblems) ---- */
+
+    function initValidation() {
+        var form = qs('post');
+        var start = qs('scem_start_date');
+        var end = qs('scem_end_date');
+        var until = qs('scem_recurrence_until');
+
+        if (!form || !start) {
+            return;
+        }
+
+        // Date pickers can't offer a day before the start date.
+        function syncMin() {
+            if (end) end.min = start.value;
+            if (until) until.min = start.value;
+        }
+
+        start.addEventListener('change', syncMin);
+        syncMin();
+
+        // Registered before WP's own submit.edit-post handler, which
+        // checks isDefaultPrevented() — so blocking here also stops the
+        // Publish/Update button spinning forever.
+        form.addEventListener('submit', function (event) {
+            var errors = findErrors();
+            var box = document.querySelector('.scem-event-details');
+            var notice = qs('scem-validation-notice');
+
+            if (notice) notice.remove();
+
+            if (!errors.length) {
+                return;
+            }
+
+            event.preventDefault();
+
+            notice = document.createElement('div');
+            notice.id = 'scem-validation-notice';
+            notice.className = 'notice notice-error inline';
+            notice.innerHTML = '<p><strong>Not saved — please fix:</strong></p><ul style="list-style:disc;margin-left:2em"></ul>';
+            errors.forEach(function (message) {
+                var li = document.createElement('li');
+                li.textContent = message;
+                notice.querySelector('ul').appendChild(li);
+            });
+
+            if (box) {
+                box.insertBefore(notice, box.children[1] || null);
+                box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+
+        function visible(el) {
+            return !!el && !el.closest('[hidden]');
+        }
+
+        function findErrors() {
+            var errors = [];
+            var ageOver = qs('scem_age_over');
+            var ageUnder = qs('scem_age_under');
+
+            // A missing start date isn't blocked (drafts are often saved
+            // half-filled) — the server-side notice flags it instead.
+            if (!start.value) {
+                return errors;
+            }
+
+            if (visible(end) && end.value && end.value < start.value) {
+                errors.push('The end date is before the start date — check the year.');
+            }
+
+            var frequency = qs('scem_recurrence_frequency');
+
+            if (visible(until) && frequency && frequency.value && until.value && until.value < start.value) {
+                errors.push('The repeat “Ends on” date is before the start date.');
+            }
+
+            if (visible(ageOver) && visible(ageUnder) && ageOver.value !== '' && ageUnder.value !== ''
+                && parseInt(ageOver.value, 10) > parseInt(ageUnder.value, 10)) {
+                errors.push('The minimum age is higher than the maximum age.');
+            }
+
+            return errors;
+        }
+    }
 
     function qs(id) {
         return document.getElementById(id);

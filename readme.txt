@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.12.0
+Stable tag: 1.13.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.13.0 =
+* Event date validation. The editor won't save an event whose end date or repeat "Ends on" date is before its start date, or whose minimum age is higher than its maximum age (these made events silently disappear from listings). Date pickers no longer offer days before the start date. After saving, a notice also flags a missing start date or a multi-day event with no end date.
 
 = 1.12.0 =
 * Optional "Doors open" time on events, set per event and, for multi-day events with different times per date, per date. Included in event data as `doors_time` and in the event structured data as `doorTime`.
