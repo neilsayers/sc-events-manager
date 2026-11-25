@@ -9,6 +9,7 @@ use SCEventsManager\Admin\EventTypesPage;
 use SCEventsManager\Admin\ListingSettingsPage;
 use SCEventsManager\Admin\TaxonomiesPage;
 use SCEventsManager\Frontend\EventListingShortcode;
+use SCEventsManager\Frontend\GalleryShortcode;
 use SCEventsManager\Frontend\EventSchema;
 use SCEventsManager\Frontend\EventsRestController;
 use SCEventsManager\Frontend\VenueMapAssets;
@@ -57,6 +58,7 @@ final class Plugin
             new CalendarPage($this->settings),
             new ListingSettingsPage($this->settings),
             new EventListingShortcode($this->settings),
+            new GalleryShortcode(),
             new EventsRestController(),
             new EventSchema($this->settings),
             new VenueMapAssets($this->settings),

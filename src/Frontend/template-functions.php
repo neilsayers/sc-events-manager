@@ -218,3 +218,18 @@ if (! function_exists('scem_the_ticket_prices')) {
         echo '</div>';
     }
 }
+
+if (! function_exists('scem_gallery_was_placed')) {
+    /**
+     * Whether the [sc_event_gallery] shortcode has rendered this event's
+     * gallery during this request. Call it AFTER the event's content
+     * has been rendered (apply_filters('the_content', …)), and only
+     * output the theme's own gallery when it returns false — so an
+     * editor placing the shortcode moves the gallery rather than
+     * duplicating it.
+     */
+    function scem_gallery_was_placed(?int $postId = null): bool
+    {
+        return \SCEventsManager\Frontend\GalleryShortcode::wasPlaced($postId);
+    }
+}

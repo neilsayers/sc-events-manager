@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.13.0
+Stable tag: 1.14.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,6 +67,11 @@ image, date/time, venue, price, status, event type, excerpt, ticket link — is 
 Listing Display, a checkbox screen storing an *ordered* list of enabled fields rather than independent booleans, so
 a future drag-and-drop reorder tool can reuse the exact same data with no migration.
 
+[sc_event_gallery] places an event's gallery (the images chosen in its Gallery box) at that spot in the event's
+content rather than the end of the page; columns="4" sets the grid width in the default markup. A second shortcode for
+the same event does nothing. Themes render their own gallery only when scem_gallery_was_placed() returns false, and
+can replace the default markup entirely with the scem_gallery_html filter. See Events Manager -> Documentation.
+
 == Versioning ==
 
 Every working session bumps the version at least a patch level, so the number in the plugin header always reflects
@@ -74,6 +79,11 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.14.0 =
+* Added the [sc_event_gallery] shortcode: drop it into an event's content to place its gallery there instead of at the end of the page. Optional columns="" (default 3) and post_id="". A second shortcode for the same event renders nothing.
+* Added scem_gallery_was_placed() for themes (render your own gallery only when it returns false) and the scem_gallery_html filter to replace the default markup with the theme's own grid/lightbox.
+* Documentation page gained a section for the new shortcode and its theme hooks.
 
 = 1.13.0 =
 * Event date validation. The editor won't save an event whose end date or repeat "Ends on" date is before its start date, or whose minimum age is higher than its maximum age (these made events silently disappear from listings). Date pickers no longer offer days before the start date. After saving, a notice also flags a missing start date or a multi-day event with no end date.

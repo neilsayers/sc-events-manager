@@ -5,6 +5,7 @@ namespace SCEventsManager\Admin;
 use SCEventsManager\Calendar\EventOccurrences;
 use SCEventsManager\Contracts\Hookable;
 use SCEventsManager\Frontend\EventListingShortcode;
+use SCEventsManager\Frontend\GalleryShortcode;
 use SCEventsManager\Frontend\ListingFields;
 use SCEventsManager\Settings\Settings;
 
@@ -92,6 +93,7 @@ final class DocumentationPage implements Hookable
             <?php $this->renderFunctionSection(); ?>
             <?php $this->renderRestSection(); ?>
             <?php $this->renderShortcodeSection(); ?>
+            <?php $this->renderGallerySection(); ?>
             <?php $this->renderFieldReferenceSection(); ?>
         </div>
         <?php
@@ -158,6 +160,28 @@ foreach ($events as $event) {
         <p>For post/page content — renders the plugin's own card markup directly, e.g. <code>[sc_events type="gig" limit="3"]</code>.</p>
 
         <?php $this->renderAttributesTable(); ?>
+        <?php
+    }
+
+    private function renderGallerySection(): void
+    {
+        ?>
+        <h2>Shortcode: <code>[<?php echo \esc_html(GalleryShortcode::SHORTCODE_TAG); ?>]</code></h2>
+        <p>Places an event's gallery (the images chosen in its Gallery box) at that exact spot in the event's content, instead of the end of the page. Use it on its own line, e.g. <code>[sc_event_gallery columns="4"]</code>.</p>
+        <table class="widefat striped" style="max-width:760px">
+            <thead><tr><th>Attribute</th><th>Default</th><th>What it does</th></tr></thead>
+            <tbody>
+                <tr><td><code>columns</code></td><td><code>3</code></td><td>Grid columns (1–8) in the default markup.</td></tr>
+                <tr><td><code>post_id</code></td><td>current event</td><td>Show a different event's gallery.</td></tr>
+            </tbody>
+        </table>
+        <p>A second <code>[sc_event_gallery]</code> for the same event on a page does nothing, so a gallery never appears twice.</p>
+
+        <h3>For theme developers</h3>
+        <ul style="list-style:disc;padding-left:1.5em">
+            <li><code>scem_gallery_was_placed()</code> — after rendering the content with <code>apply_filters('the_content', get_the_content())</code>, only output your own gallery when this returns <code>false</code> (the editor didn't place it with the shortcode).</li>
+            <li><code>scem_gallery_html</code> filter — <code>apply_filters('scem_gallery_html', $html, $ids, $postId, $atts)</code>; return your own markup (grid, lightbox triggers, etc.) to replace the default linked grid.</li>
+        </ul>
         <?php
     }
 
