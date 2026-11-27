@@ -4,7 +4,7 @@ Tags: events, calendar
 Requires at least: 6.6
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 1.14.0
+Stable tag: 1.14.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,9 @@ exactly what's on disk. Patch (1.1.x) covers bug fixes and small tweaks; minor (
 major is reserved for a genuinely breaking rewrite.
 
 == Changelog ==
+
+= 1.14.1 =
+* Accessibility: the venue map pin now has an accessible name.
 
 = 1.14.0 =
 * Added the [sc_event_gallery] shortcode: drop it into an event's content to place its gallery there instead of at the end of the page. Optional columns="" (default 3) and post_id="". A second shortcode for the same event renders nothing.

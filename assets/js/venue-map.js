@@ -44,7 +44,7 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var marker = L.marker([config.lat, config.lng], { icon: buildIcon() }).addTo(map);
+        var marker = L.marker([config.lat, config.lng], { icon: buildIcon(), title: config.name || 'Venue location', alt: config.name || 'Venue location' }).addTo(map);
 
         if (config.name || config.address) {
             var popupHtml = config.name ? '<strong>' + escapeHtml(config.name) + '</strong>' : '';
